@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Plugin Host",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/Applications/AudioPluginHost.app",
+            //"program": "${workspaceFolder}/build/GainPlugin_artefacts/Debug/Standalone/Gain Plugin.app",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "build"
+        }
+    ]
+}

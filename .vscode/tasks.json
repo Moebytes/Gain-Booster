@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "configure",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"-DWEBVIEW_DEV_MODE=1",
+				".."
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			}
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "make",
+			"group": {
+			"kind": "build",
+			"isDefault": true
+			},
+			"options": {
+			"cwd": "${workspaceFolder}/build"
+			},
+			"dependsOn": "configure"
+		}
+	]
+}

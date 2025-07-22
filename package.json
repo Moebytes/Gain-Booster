@@ -1,0 +1,31 @@
+{
+  "name": "gain-plugin",
+  "version": "0.0.1",
+  "description": "Gain VST plugin",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "rsbuild dev",
+    "build": "npm run clean && rsbuild build && npm run build-cpp",
+    "build-cpp": "cd build && cmake .. && make",
+    "clean": "del-cli ./dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Moebits/Gain-Plugin"
+  },
+  "author": "Moebits",
+  "license": "CC BY-NC 4.0",
+  "dependencies": {
+    "juce-framework-frontend-mirror": "^8.0.8-rc.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "^1.4.8",
+    "@rsbuild/plugin-react": "^1.3.4",
+    "@rsbuild/plugin-sass": "^1.3.3",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "sass": "^1.89.2"
+  }
+}
