@@ -7,26 +7,34 @@ import "./styles/knob.scss"
 interface Props {
     parameterID: string
     label: string
+    color: string
+    display: "percent" | "decibels"
     roundFunction?: (value: number) => number
     displayFunction?: (value: number) => string
 }
 
-const Knob: React.FunctionComponent<Props> = ({label, parameterID, roundFunction, displayFunction}) => {
+const Knob: React.FunctionComponent<Props> = ({label, parameterID, color, display, roundFunction}) => {
     const knobID = useId()
     const labelID = useId()
 
-    if (!roundFunction) roundFunction = (value: number) => value
-    if (!displayFunction) displayFunction = (value: number) => `${(value * 100).toFixed(0)}%`
-
     return (
         <JuceSlider parameterID={parameterID}>
-            {({value, properties, onChange, dragStart, dragEnd}) => {
+            {({value, properties, onChange, reset, dragStart, dragEnd}) => {
                 const minAngle = -145
                 const maxAngle = 145
                 const min = properties.start
                 const max = properties.end
                 const step = (max - min) / (properties.numSteps - 1)
                 const angle = functions.remapRange(value, min, max, minAngle, maxAngle)
+
+
+                if (!roundFunction) roundFunction = (value: number) => value
+
+                let displayFunction = (value: number) => `${(value * 100).toFixed(0)}%`
+
+                if (display === "decibels") {
+                    displayFunction = (value: number) => `${(value).toFixed(1)} dB`
+                }
 
                 const keyboardHandler = useKnobKeyboardControls({
                     valueRaw: value,
@@ -39,12 +47,15 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, roundFunction
 
                 return (
                     <div className="knob-container">
-                        <KnobHeadlessLabel className="knob-label" id={labelID}>{label}</KnobHeadlessLabel>
+                        <KnobHeadlessLabel className="knob-label" id={labelID} style={{color}}>
+                            {label}
+                        </KnobHeadlessLabel>
                         <KnobHeadless
                             aria-label={parameterID}
                             aria-labelledby={labelID}
                             dragSensitivity={0.006}
                             onValueRawChange={onChange}
+                            onDoubleClick={reset}
                             valueMin={min}
                             valueMax={max}
                             valueRaw={value}
@@ -56,7 +67,7 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, roundFunction
                             axis="y"
                             style={{outline: "none"}}
                             {...keyboardHandler}>
-                            <div className="knob">
+                            <div className="knob" style={{backgroundColor: color}}>
                                 <div className="knob-rotator" style={{transform: `rotate(${angle}deg)`}}>
                                     <div className="knob-indicator"/>
                                 </div>

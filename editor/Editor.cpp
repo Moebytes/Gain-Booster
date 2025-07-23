@@ -21,7 +21,20 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     .withBackgroundColour(juce::Colours::white))
     .withResourceProvider([this](const auto& url) { return getResource(url); })
     .withNativeIntegrationEnabled()
-    .withOptionsFrom(gainRelay);
+    .withOptionsFrom(gainRelay)
+    .withOptionsFrom(boostRelay)
+    .withNativeFunction("getDefaultParameter", [this](auto args, auto completion){ 
+        return getDefaultParameter(args, completion); 
+    });
+}
+
+auto Editor::getDefaultParameter(const juce::Array<juce::var>& args,
+    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+
+    juce::String paramID = args[0].toString();
+    float defaultValue = processorRef.tree.getParameter(paramID)->getDefaultValue();
+
+    completion(defaultValue);
 }
 
 auto Editor::resized() -> void {
@@ -30,17 +43,14 @@ auto Editor::resized() -> void {
 
 auto Editor::getWebviewFileBytes(const juce::String& resourceStr) -> std::vector<std::byte> {
     juce::MemoryInputStream zipStream(BinaryData::webview_files_zip, BinaryData::webview_files_zipSize, false);
-
     juce::ZipFile zip{zipStream};
 
     if (auto* entry = zip.getEntry(resourceStr)) {
         const std::unique_ptr<juce::InputStream> entryStream{zip.createStreamForEntry(*entry)};
-
         if (entryStream == nullptr) {
             jassertfalse;
             return {};
         }
-
         return Functions::streamToVector(*entryStream);
     }
     return {};
@@ -51,20 +61,16 @@ auto Editor::getResource(const juce::String& url) -> std::optional<juce::WebBrow
     const auto resourceStr = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
     const auto ext = resourceStr.fromLastOccurrenceOf(".", false, false);
 
-
     #if WEBVIEW_DEV_MODE
         const auto stream = fileRoot.getChildFile(resourceStr).createInputStream();
-
         if (stream) {
             return juce::WebBrowserComponent::Resource(Functions::streamToVector(*stream), Functions::getMimeForExtension(ext));
         }
     #else
         const auto resource = Editor::getWebviewFileBytes(resourceStr);
-
         if (!resource.empty()) {
             return juce::WebBrowserComponent::Resource(std::move(resource), Functions::getMimeForExtension(ext));
         }
     #endif
-
     return std::nullopt;
 }

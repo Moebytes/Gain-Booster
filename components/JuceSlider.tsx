@@ -18,10 +18,13 @@ interface Props {
         value: number
         properties: JUCEProperties
         onChange: (value: number) => void
+        reset: () => void
         dragStart: () => void
         dragEnd: () => void
     }) => React.ReactNode
 }
+
+const getDefaultParameter = JUCE.getNativeFunction("getDefaultParameter")
 
 const JuceSlider: React.FunctionComponent<Props> = ({parameterID, children}) => {
     const sliderState = JUCE.getSliderState(parameterID)!
@@ -46,12 +49,18 @@ const JuceSlider: React.FunctionComponent<Props> = ({parameterID, children}) => 
         setValue(value)
     }
 
+    const handleReset = async () => {
+        const defaultValue = await getDefaultParameter(parameterID)
+        handleChange(defaultValue)
+    }
+
     return (
         <>
             {children({
                 value,
                 properties,
                 onChange: handleChange,
+                reset: handleReset,
                 dragStart: sliderState.sliderDragStarted,
                 dragEnd: sliderState.sliderDragEnded
             })}

@@ -1,14 +1,17 @@
 import React from "react"
 import {createRoot} from "react-dom/client"
-import JuceSlider from "./components/JuceSlider"
 import Knob from "./components/Knob"
+import parameters from "./processor/parameters.json"
 import "./index.scss"
 
 const App: React.FunctionComponent = (props) => {
 
     return (
         <div className="app">
-            <Knob label="GAIN" parameterID="gain"/>
+            <div className="knobs-container">
+                <Knob label={parameters.gain.id.toUpperCase()} parameterID={parameters.gain.id} color="#ff0db2" display="percent"/>
+                <Knob label={parameters.boost.id.toUpperCase()} parameterID={parameters.boost.id} color="#227eff" display="decibels"/>
+            </div>
         </div>
     )
 

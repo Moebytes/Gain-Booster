@@ -70,16 +70,10 @@ file(
     FORMAT zip VERBOSE
 )
 
-juce_add_binary_data(WebViewFiles
-    HEADER NAME WebViewFiles.h
-    SOURCES ${WEBVIEW_ZIP}
-)
-
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         juce::juce_audio_utils
         juce::juce_dsp
-        WebViewFiles
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

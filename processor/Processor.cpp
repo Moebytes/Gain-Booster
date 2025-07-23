@@ -23,7 +23,7 @@ auto Processor::releaseResources() -> void {
 auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] juce::MidiBuffer& midiMessages) -> void {
     juce::ScopedNoDenormals noDenormals;
 
-    params.update();
+    params.init();
 
     auto mainInput  = getBusBuffer(buffer, true, 0);
     auto mainOutput = getBusBuffer(buffer, false, 0);
@@ -35,10 +35,10 @@ auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] 
     float* outputR = mainOutput.getNumChannels() > 1 ? mainOutput.getWritePointer(1) : outputL;
 
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-        params.smoothen();
+        params.update();
 
-        outputL[sample] *= params.gain;
-        outputR[sample] *= params.gain;
+        outputL[sample] *= params.gain * params.boost;
+        outputR[sample] *= params.gain * params.boost;
     }
  
     #if JUCE_DEBUG

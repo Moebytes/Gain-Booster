@@ -1,51 +1,91 @@
 #include "Parameters.h"
 
 template<typename T>
-static auto castParameter(juce::AudioProcessorValueTreeState& apvts, 
-    const juce::ParameterID& id, T& dest) -> void {
-    dest = dynamic_cast<T>(apvts.getParameter(id.getParamID()));
-    jassert(dest);
+static auto castParameter(const juce::AudioProcessorValueTreeState& tree, 
+    const juce::ParameterID* id, T*& dest) -> void {
+    dest = dynamic_cast<T*>(tree.getParameter(id->getParamID()));
 }
 
-Parameters::Parameters(juce::AudioProcessorValueTreeState& apvts) {
-    castParameter(apvts, gainParamID, gainParam);
+template <typename T>
+static auto resetParameter(const juce::AudioProcessorValueTreeState& tree, 
+    const juce::AudioParameterFloat* param, T*& dest) -> void {
+    *dest = tree.getParameter(param->getParameterID())->getDefaultValue();
 }
 
-static auto stringFromPercent(float value, int) -> juce::String {
-    return juce::String::formatted("%.0f%%", value * 100);
-}
+ParameterIDs Parameters::paramIDs = ParameterIDs::loadFromJSON();
 
-static auto stringFromDecibels(float value, int) -> juce::String {
-    if (value == 0.0f) return CharPointer_UTF8("-∞ dB");
-    return juce::String::formatted("%.1f dB", juce::Decibels::gainToDecibels(value));
+Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : treeRef(tree) {
+    using ParamPair = std::pair<juce::AudioParameterFloat*&, const juce::ParameterID*>;
+
+    auto parameters = std::vector<ParamPair>{
+        {gainParam, &paramIDs.gain},
+        {boostParam, &paramIDs.boost}
+    };
+
+    for (auto& [param, paramID] : parameters) {
+        castParameter(treeRef, paramID, param);
+    }
 }
 
 auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::ParameterLayout {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        gainParamID, "Gain", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f, 0.7f}, 1.0f,
-        juce::AudioParameterFloatAttributes()
-            .withStringFromValueFunction(stringFromDecibels)
+        paramIDs.gain, "Gain", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f, 0.7f}, 1.0f
     ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        paramIDs.boost, "Boost", juce::NormalisableRange<float>{0.0f, 12.0f, 0.01f}, 0.0f
+    ));
+
     return layout;
 }
 
-
 auto Parameters::prepareToPlay(double sampleRate) noexcept -> void {
-    double duration = 0.02;
-    gainSmoother.reset(sampleRate, duration);
+    const double duration = 0.02;
+
+    const auto smoothers = std::vector{
+        &gainSmoother,
+        &boostSmoother
+    };
+
+    for (const auto& smoother : smoothers) {
+        smoother->reset(sampleRate, duration);
+    }
 }
 
 auto Parameters::reset() noexcept -> void {
-    gain = 0.0f;
-    gainSmoother.setCurrentAndTargetValue(gainParam->get());
+    auto paramFloats = std::vector{
+        std::pair{gainParam, &gain},
+        std::pair{boostParam, &boost}
+    };
+
+    for (auto& [param, value] : paramFloats) {
+        resetParameter(treeRef, param, value);
+    }
+
+    const auto smoothers = std::vector{
+        std::pair{gainParam, &gainSmoother},
+        std::pair{boostParam, &boostSmoother}
+    };
+
+    for (const auto& [param, smoother] : smoothers) {
+        smoother->setCurrentAndTargetValue(param->get());
+    }
+}
+
+auto Parameters::init() noexcept -> void {
+    const auto smoothers = std::vector{
+        std::pair{gainParam, &gainSmoother},
+        std::pair{boostParam, &boostSmoother},
+    };
+
+    for (const auto& [param, smoother] : smoothers) {
+        smoother->setTargetValue(param->get());
+    }
 }
 
 auto Parameters::update() noexcept -> void {
-    gainSmoother.setTargetValue(gainParam->get());
-}
-
-auto Parameters::smoothen() noexcept -> void {
     gain = gainSmoother.getNextValue();
+    boost = juce::Decibels::decibelsToGain(boostSmoother.getNextValue());
 }

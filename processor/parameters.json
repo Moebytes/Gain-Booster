@@ -1,0 +1,14 @@
+{
+    "gain": {
+        "id": "gain", 
+        "version": 1
+    },
+    "boost": {
+        "id": "boost", 
+        "version": 1
+    },
+    "pan": {
+        "id": "pan", 
+        "version": 1
+    }
+}

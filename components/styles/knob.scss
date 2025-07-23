@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 80px;
     user-select: none;
 }
 
@@ -11,7 +10,6 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background-color: #ff0db2;
     border: 2px solid black;
 }
   
@@ -20,21 +18,19 @@
     width: 100%;
     height: 100%;
     transform-origin: center center;
-    transition: transform 0.1s ease-out;
 }
 
 .knob-indicator {
     position: absolute;
     width: 3px;
     top: 4px;
-    height: 28px;
+    height: 50%;
     left: 50%;
     background-color: black;
     transform: translateX(-50%);
 }
 
 .knob-label {
-    color: #ff0db2;
     font-family: Arial, sans-serif;
     font-size: 30px;
     margin-bottom: 30px;
@@ -45,4 +41,7 @@
     font-family: Arial, sans-serif;
     font-size: 30px;
     margin-top: 30px;
+    width: 100px;
+    text-align: center;
+    white-space: nowrap;
 }
