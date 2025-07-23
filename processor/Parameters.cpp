@@ -21,10 +21,10 @@ static auto stringFromDecibels(float value, int) -> juce::String {
 }
 
 auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::ParameterLayout {
-    auto layout = juce::AudioProcessorValueTreeState::ParameterLayout{};
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        gainParamID, "Gain", juce::NormalisableRange<float> {0.0f, 1.0f, 0.01f, 0.7f}, 1.0f,
+        gainParamID, "Gain", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f, 0.7f}, 1.0f,
         juce::AudioParameterFloatAttributes()
             .withStringFromValueFunction(stringFromDecibels)
     ));

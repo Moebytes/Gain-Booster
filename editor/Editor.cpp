@@ -10,7 +10,7 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
     setResizable(true, true);
     addAndMakeVisible(webview);
 
-    setSize(800, 600);
+    setSize(300, 300);
 }
 
 auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {

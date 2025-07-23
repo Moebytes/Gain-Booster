@@ -15,10 +15,15 @@
   },
   "author": "Moebits",
   "license": "CC BY-NC 4.0",
+  "overrides": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
   "dependencies": {
     "juce-framework-frontend-mirror": "^8.0.8-rc.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-knob-headless": "0.4.0"
   },
   "devDependencies": {
     "@rsbuild/core": "^1.4.8",

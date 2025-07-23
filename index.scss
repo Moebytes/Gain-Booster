@@ -1,9 +1,17 @@
 :root {
-    --background: white;
+    --background: #1a1a1a;
 }
 
 html, body {
     width: 100%;
     height: 100%;
+    margin: 0;
     background-color: var(--background);
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
