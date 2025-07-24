@@ -6,9 +6,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (APPLE)
     set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE INTERNAL "")
+    set_source_files_properties(assets/icon_big.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    set(MACOSX_BUNDLE_ICON_FILE icon_big.icns)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        MACOSX_BUNDLE TRUE
+        RESOURCE "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon_big.icns"
+    )
 endif()
 
-project(GainPlugin VERSION 0.0.1)
+project(GainBooster VERSION 0.0.1)
 
 option(WEBVIEW_DEV_MODE "Enable webview dev mode (load from disk)" OFF)
 
@@ -22,8 +28,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(juce)
 
 juce_add_plugin(${PROJECT_NAME}
-    # ICON_BIG 
-    # ICON_SMALL
+    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon_big.ico"
+    ICON_SMALL "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon_small.ico"
     COMPANY_NAME Moebytes
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
@@ -34,7 +40,7 @@ juce_add_plugin(${PROJECT_NAME}
     PLUGIN_MANUFACTURER_CODE Mbit
     PLUGIN_CODE Gain
     FORMATS VST3 AU Standalone
-    PRODUCT_NAME "Gain Plugin"
+    PRODUCT_NAME "Gain Booster"
     NEEDS_WEB_BROWSER TRUE
     NEEDS_WEBVIEW2 TRUE
 )
