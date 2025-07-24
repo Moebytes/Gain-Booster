@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Parameters.h"
+#include "BPM.h"
 
 class Processor : public juce::AudioProcessor {
 public:
@@ -35,7 +36,7 @@ public:
   };
 
   Parameters params;
-  
+
 private:
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Processor)
 };

@@ -21,8 +21,10 @@ const App: React.FunctionComponent = (props) => {
                 color="#460dff" display="pan" mappingOptions={["constant", "triangle", "linear"]}/>
             </div>
             <div className="lfo-container">
-                <LFOBar label={parameters.gain.id.toUpperCase()} parameterID={parameters.gain.id} color="#ff0db2"/>
-                <LFOBar label={parameters.pan.id.toUpperCase()} parameterID={parameters.pan.id} color="#460dff"/>
+                <LFOBar label={parameters.gain.id.toUpperCase()} lfoTypeID={parameters.gainLFOType.id} lfoRateID={parameters.gainLFORate.id} 
+                lfoAmountID={parameters.gainLFOAmount.id} color="#ff0db2"/>
+                <LFOBar label={parameters.pan.id.toUpperCase()} lfoTypeID={parameters.panLFOType.id} lfoRateID={parameters.panLFORate.id} 
+                lfoAmountID={parameters.panLFOAmount.id}  color="#460dff"/>
             </div>
         </div>
     )

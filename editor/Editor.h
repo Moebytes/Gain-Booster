@@ -37,6 +37,24 @@ private:
 
     juce::WebComboBoxRelay panningLawRelay {Parameters::paramIDs.panningLaw.getParamID()};
     juce::WebComboBoxParameterAttachment panningLawAttachment {*processorRef.params.panningLawParam, panningLawRelay, nullptr};
+    
+    juce::WebComboBoxRelay gainLFOTypeRelay {Parameters::paramIDs.gainLFOType.getParamID()};
+    juce::WebComboBoxParameterAttachment gainLFOTypeAttachment {*processorRef.params.gainLFOTypeParam, gainLFOTypeRelay, nullptr};
+
+    juce::WebSliderRelay gainLFORateRelay {Parameters::paramIDs.gainLFORate.getParamID()};
+    juce::WebSliderParameterAttachment gainLFORateAttachment {*processorRef.params.gainLFORateParam, gainLFORateRelay, nullptr};
+
+    juce::WebSliderRelay gainLFOAmountRelay {Parameters::paramIDs.gainLFOAmount.getParamID()};
+    juce::WebSliderParameterAttachment gainLFOAmountAttachment {*processorRef.params.gainLFOAmountParam, gainLFOAmountRelay, nullptr};
+    
+    juce::WebComboBoxRelay panLFOTypeRelay {Parameters::paramIDs.panLFOType.getParamID()};
+    juce::WebComboBoxParameterAttachment panLFOTypeAttachment {*processorRef.params.panLFOTypeParam, panLFOTypeRelay, nullptr};
+
+    juce::WebSliderRelay panLFORateRelay {Parameters::paramIDs.panLFORate.getParamID()};
+    juce::WebSliderParameterAttachment panLFORateAttachment {*processorRef.params.panLFORateParam, panLFORateRelay, nullptr};
+
+    juce::WebSliderRelay panLFOAmountRelay {Parameters::paramIDs.panLFOAmount.getParamID()};
+    juce::WebSliderParameterAttachment panLFOAmountAttachment {*processorRef.params.panLFOAmountParam, panLFOAmountRelay, nullptr};
 
     juce::WebBrowserComponent webview;
 

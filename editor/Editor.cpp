@@ -34,6 +34,12 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     .withOptionsFrom(gainSkewRelay)
     .withOptionsFrom(boostSkewRelay)
     .withOptionsFrom(panningLawRelay)
+    .withOptionsFrom(gainLFOTypeRelay)
+    .withOptionsFrom(gainLFORateRelay)
+    .withOptionsFrom(gainLFOAmountRelay)
+    .withOptionsFrom(panLFOTypeRelay)
+    .withOptionsFrom(panLFORateRelay)
+    .withOptionsFrom(panLFOAmountRelay)
     .withNativeFunction("getDefaultParameter", [this](auto args, auto completion){ 
         return getDefaultParameter(args, completion); 
     });

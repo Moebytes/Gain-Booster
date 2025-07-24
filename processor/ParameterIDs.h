@@ -10,6 +10,13 @@ struct ParameterIDs {
     juce::ParameterID pan;
     juce::ParameterID panningLaw;
 
+    juce::ParameterID gainLFOType;
+    juce::ParameterID gainLFORate;
+    juce::ParameterID gainLFOAmount;
+    juce::ParameterID panLFOType;
+    juce::ParameterID panLFORate;
+    juce::ParameterID panLFOAmount;
+
     static auto loadFromJSON() -> ParameterIDs {
         ParameterIDs parameterIDs;
 
@@ -36,6 +43,13 @@ struct ParameterIDs {
         parameterIDs.boostSkew = getParameter("boostSkew");
         parameterIDs.pan = getParameter("pan");
         parameterIDs.panningLaw = getParameter("panningLaw");
+
+        parameterIDs.gainLFOType = getParameter("gainLFOType");
+        parameterIDs.gainLFORate = getParameter("gainLFORate");
+        parameterIDs.gainLFOAmount = getParameter("gainLFOAmount");
+        parameterIDs.panLFOType = getParameter("panLFOType");
+        parameterIDs.panLFORate = getParameter("panLFORate");
+        parameterIDs.panLFOAmount = getParameter("panLFOAmount");
 
         return parameterIDs;
     }

@@ -23,7 +23,7 @@ auto Processor::releaseResources() -> void {
 auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] juce::MidiBuffer& midiMessages) -> void {
     juce::ScopedNoDenormals noDenormals;
 
-    params.init();
+    params.init(getPlayHead());
 
     auto mainInput  = getBusBuffer(buffer, true, 0);
     auto mainOutput = getBusBuffer(buffer, false, 0);

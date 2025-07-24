@@ -23,4 +23,24 @@ export default class Functions {
         const result = solver.solve()
         return result.filter
     }
+
+    public static getFraction = (target: number, numerators: number[], denominators: number[]) => {
+        let closestNum = 1
+        let closestDen = 1
+        let minDiff = Infinity
+    
+        for (const num of numerators) {
+            for (const den of denominators) {
+                const val = num / den
+                const diff = Math.abs(val - target)
+                if (diff < minDiff) {
+                    minDiff = diff
+                    closestNum = num
+                    closestDen = den
+                }
+            }
+        }
+    
+        return {numerator: closestNum, denominator: closestDen}
+    }
 }
