@@ -20,11 +20,17 @@ public:
 
     std::atomic<float> boost = 0.0f;
     juce::AudioParameterFloat* boostParam;
+
+    std::atomic<float> pan = 0.0f;
+    float panL = 0.0f;
+    float panR = 1.0f;
+    juce::AudioParameterFloat* panParam;
 private:
     juce::AudioProcessorValueTreeState& treeRef;
     
     juce::LinearSmoothedValue<float> gainSmoother;
     juce::LinearSmoothedValue<float> boostSmoother;
+    juce::LinearSmoothedValue<float> panSmoother;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Parameters)
 };

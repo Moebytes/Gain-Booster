@@ -12,4 +12,14 @@ export default class Functions {
         const normalized = Functions.normalizeRange(value, min, max)
         return Functions.denormalizeValue(normalized, newMin, newMax)
     }
+
+    public static skew = (normalized: number, skew: number) => {
+        if (skew === 1 || skew === 0) return normalized
+        return Math.pow(normalized, 1 / skew)
+    }
+      
+    public static unskew = (normalized: number, skew: number) => {
+        if (skew === 1 || skew === 0) return normalized
+        return Math.pow(normalized, skew)
+    }
 }

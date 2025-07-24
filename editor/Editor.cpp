@@ -10,7 +10,15 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
     setResizable(true, true);
     addAndMakeVisible(webview);
 
-    setSize(300, 300);
+    setSize(500, 300);
+}
+
+Editor::~Editor() {
+    removeChildComponent(&webview);
+}
+
+auto Editor::visibilityChanged() -> void {
+    if (isVisible()) webview.goToURL(webview.getResourceProviderRoot());
 }
 
 auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
@@ -23,6 +31,7 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     .withNativeIntegrationEnabled()
     .withOptionsFrom(gainRelay)
     .withOptionsFrom(boostRelay)
+    .withOptionsFrom(panRelay)
     .withNativeFunction("getDefaultParameter", [this](auto args, auto completion){ 
         return getDefaultParameter(args, completion); 
     });

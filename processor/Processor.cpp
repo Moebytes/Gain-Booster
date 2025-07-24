@@ -37,8 +37,10 @@ auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] 
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
         params.update();
 
-        outputL[sample] *= params.gain * params.boost;
-        outputR[sample] *= params.gain * params.boost;
+        float gain = params.gain * params.boost;
+
+        outputL[sample] = inputL[sample] * gain * params.panL;
+        outputR[sample] = inputR[sample] * gain * params.panR;
     }
  
     #if JUCE_DEBUG

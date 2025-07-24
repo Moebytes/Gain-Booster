@@ -11,6 +11,7 @@ const App: React.FunctionComponent = (props) => {
             <div className="knobs-container">
                 <Knob label={parameters.gain.id.toUpperCase()} parameterID={parameters.gain.id} color="#ff0db2" display="percent"/>
                 <Knob label={parameters.boost.id.toUpperCase()} parameterID={parameters.boost.id} color="#227eff" display="decibels"/>
+                <Knob label={parameters.pan.id.toUpperCase()} parameterID={parameters.pan.id} color="#460dff" display="pan"/>
             </div>
         </div>
     )

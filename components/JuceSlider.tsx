@@ -28,8 +28,8 @@ const getDefaultParameter = JUCE.getNativeFunction("getDefaultParameter")
 
 const JuceSlider: React.FunctionComponent<Props> = ({parameterID, children}) => {
     const sliderState = JUCE.getSliderState(parameterID)!
-    const [value, setValue] = useState(sliderState.getNormalisedValue())
     const [properties, setProperties] = useState(sliderState.properties)
+    const [value, setValue] = useState(sliderState.getNormalisedValue())
 
     useEffect(() => {
         const valueID = sliderState.valueChangedEvent.addListener(() => {
@@ -54,6 +54,14 @@ const JuceSlider: React.FunctionComponent<Props> = ({parameterID, children}) => 
         handleChange(defaultValue)
     }
 
+    const handleDragStart = () => {
+        sliderState.sliderDragStarted()
+    }
+
+    const handleDragEnd = () => {
+        sliderState.sliderDragEnded()
+    }
+
     return (
         <>
             {children({
@@ -61,8 +69,8 @@ const JuceSlider: React.FunctionComponent<Props> = ({parameterID, children}) => 
                 properties,
                 onChange: handleChange,
                 reset: handleReset,
-                dragStart: sliderState.sliderDragStarted,
-                dragEnd: sliderState.sliderDragEnded
+                dragStart: handleDragStart,
+                dragEnd: handleDragEnd
             })}
         </>
     )

@@ -1,15 +1,19 @@
 #include "Parameters.h"
+#include "DSP.h"
 
 template<typename T>
 static auto castParameter(const juce::AudioProcessorValueTreeState& tree, 
     const juce::ParameterID* id, T*& dest) -> void {
     dest = dynamic_cast<T*>(tree.getParameter(id->getParamID()));
+    jassert(dest != nullptr);
 }
 
 template <typename T>
 static auto resetParameter(const juce::AudioProcessorValueTreeState& tree, 
     const juce::AudioParameterFloat* param, T*& dest) -> void {
-    *dest = tree.getParameter(param->getParameterID())->getDefaultValue();
+    if (auto* paramObj = tree.getParameter(param->getParameterID())) {
+        *dest = paramObj->getDefaultValue();
+    }
 }
 
 ParameterIDs Parameters::paramIDs = ParameterIDs::loadFromJSON();
@@ -19,7 +23,8 @@ Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : treeRef(tree)
 
     auto parameters = std::vector<ParamPair>{
         {gainParam, &paramIDs.gain},
-        {boostParam, &paramIDs.boost}
+        {boostParam, &paramIDs.boost},
+        {panParam, &paramIDs.pan}
     };
 
     for (auto& [param, paramID] : parameters) {
@@ -38,15 +43,20 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
         paramIDs.boost, "Boost", juce::NormalisableRange<float>{0.0f, 12.0f, 0.01f}, 0.0f
     ));
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        paramIDs.pan, "Pan", juce::NormalisableRange<float>{-1.0f, 1.0f, 0.01f}, 0.0f
+    ));
+
     return layout;
 }
 
 auto Parameters::prepareToPlay(double sampleRate) noexcept -> void {
-    const double duration = 0.02;
+    const double duration = 0.01;
 
     const auto smoothers = std::vector{
         &gainSmoother,
-        &boostSmoother
+        &boostSmoother,
+        &panSmoother
     };
 
     for (const auto& smoother : smoothers) {
@@ -57,7 +67,8 @@ auto Parameters::prepareToPlay(double sampleRate) noexcept -> void {
 auto Parameters::reset() noexcept -> void {
     auto paramFloats = std::vector{
         std::pair{gainParam, &gain},
-        std::pair{boostParam, &boost}
+        std::pair{boostParam, &boost},
+        std::pair{panParam, &pan}
     };
 
     for (auto& [param, value] : paramFloats) {
@@ -66,7 +77,8 @@ auto Parameters::reset() noexcept -> void {
 
     const auto smoothers = std::vector{
         std::pair{gainParam, &gainSmoother},
-        std::pair{boostParam, &boostSmoother}
+        std::pair{boostParam, &boostSmoother},
+        std::pair{panParam, &panSmoother}
     };
 
     for (const auto& [param, smoother] : smoothers) {
@@ -78,6 +90,7 @@ auto Parameters::init() noexcept -> void {
     const auto smoothers = std::vector{
         std::pair{gainParam, &gainSmoother},
         std::pair{boostParam, &boostSmoother},
+        std::pair{panParam, &panSmoother},
     };
 
     for (const auto& [param, smoother] : smoothers) {
@@ -88,4 +101,6 @@ auto Parameters::init() noexcept -> void {
 auto Parameters::update() noexcept -> void {
     gain = gainSmoother.getNextValue();
     boost = juce::Decibels::decibelsToGain(boostSmoother.getNextValue());
+    pan = panSmoother.getNextValue();
+    constantPowerPanning(pan, panL, panR);
 }

@@ -8,7 +8,7 @@ interface Props {
     parameterID: string
     label: string
     color: string
-    display: "percent" | "decibels"
+    display: "percent" | "decibels" | "pan"
     roundFunction?: (value: number) => number
     displayFunction?: (value: number) => string
 }
@@ -22,18 +22,30 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, color, displa
             {({value, properties, onChange, reset, dragStart, dragEnd}) => {
                 const minAngle = -145
                 const maxAngle = 145
-                const min = properties.start
-                const max = properties.end
+                const min = 0
+                const max = 1
                 const step = (max - min) / (properties.numSteps - 1)
                 const angle = functions.remapRange(value, min, max, minAngle, maxAngle)
 
-
                 if (!roundFunction) roundFunction = (value: number) => value
 
-                let displayFunction = (value: number) => `${(value * 100).toFixed(0)}%`
+                let displayFunction = (value: number) => {
+                    const naturalValue = functions.remapRange(value, min, max, properties.start, properties.end)
+                    return `${(naturalValue * 100).toFixed(0)}%`
+                }
 
                 if (display === "decibels") {
-                    displayFunction = (value: number) => `${(value).toFixed(1)} dB`
+                    displayFunction = (value: number) => {
+                        const naturalValue = functions.remapRange(value, min, max, properties.start, properties.end)
+                        return `${(naturalValue).toFixed(1)} dB`
+                    }
+                }
+
+                if (display === "pan") {
+                    displayFunction = (value: number) => {
+                        const naturalValue = functions.remapRange(value, min, max, properties.start, properties.end)
+                        return `${+(naturalValue * 50).toFixed(0)} ${naturalValue < 0 ? "L" : "R"}`
+                    }
                 }
 
                 const keyboardHandler = useKnobKeyboardControls({
@@ -63,7 +75,6 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, color, displa
                             valueRawRoundFn={roundFunction}
                             onMouseDown={dragStart}
                             onMouseUp={dragEnd}
-                            includeIntoTabOrder={true}
                             axis="y"
                             style={{outline: "none"}}
                             {...keyboardHandler}>
