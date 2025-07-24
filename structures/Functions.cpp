@@ -10,19 +10,19 @@ auto Functions::streamToVector(juce::InputStream& stream) -> std::vector<std::by
 
 auto Functions::getMimeForExtension(const String& extension) -> const char* {
     static const std::unordered_map<String, const char*> mimeMap = {
-        {"htm",  "text/html"               },
-        {"html", "text/html"               },
-        {"txt",  "text/plain"              },
-        {"jpg",  "image/jpeg"              },
-        {"jpeg", "image/jpeg"              },
-        {"svg",  "image/svg+xml"           },
-        {"ico",  "image/vnd.microsoft.icon"},
-        {"json", "application/json"        },
-        {"png",  "image/png"               },
-        {"css",  "text/css"                },
-        {"map",  "application/json"        },
-        {"js",   "text/javascript"         },
-        {"woff2","font/woff2"              }
+        {"html", "text/html"       },
+        {"css",  "text/css"        },
+        {"js",   "text/javascript" },
+        {"txt",  "text/plain"      },
+        {"jpg",  "image/jpeg"      },
+        {"png",  "image/png"       },
+        {"jpeg", "image/jpeg"      },
+        {"svg",  "image/svg+xml"   },
+        {"json", "application/json"},
+        {"map",  "application/json"},
+        {"ttf",  "font/ttf"        },
+        {"otf",  "font/otf"        },
+        {"woff2","font/woff2"      }
     };
 
     if (const auto it = mimeMap.find(extension.toLowerCase()); it != mimeMap.end()) {

@@ -7,8 +7,8 @@
 
 .knob {
     position: relative;
-    width: 64px;
-    height: 64px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     border: 2px solid black;
 }
@@ -31,16 +31,19 @@
 }
 
 .knob-label {
-    font-family: Arial, sans-serif;
+    font-family: MaruMinya, sans-serif;
+    font-weight: bold;
+    letter-spacing: 2px;
     font-size: 30px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .knob-value {
     color: white;
-    font-family: Arial, sans-serif;
-    font-size: 30px;
-    margin-top: 30px;
+    font-family: MaruMinya, sans-serif;
+    font-weight: bold;
+    font-size: 25px;
+    margin-top: 20px;
     width: 100px;
     text-align: center;
     white-space: nowrap;

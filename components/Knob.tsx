@@ -1,19 +1,23 @@
 import React, {useId} from "react"
 import {KnobHeadless, KnobHeadlessLabel, KnobHeadlessOutput, useKnobKeyboardControls} from "react-knob-headless"
 import JuceSlider from "./JuceSlider"
+import MappingOptions from "./MappingOptions"
 import functions from "../structures/Functions"
 import "./styles/knob.scss"
 
 interface Props {
     parameterID: string
+    mapOptionID: string
     label: string
     color: string
     display: "percent" | "decibels" | "pan"
     roundFunction?: (value: number) => number
     displayFunction?: (value: number) => string
+    style?: React.CSSProperties
+    mappingOptions?: ("logarithmic" | "linear" | "exponential" | "triangle" | "constant")[]
 }
 
-const Knob: React.FunctionComponent<Props> = ({label, parameterID, color, display, roundFunction}) => {
+const Knob: React.FunctionComponent<Props> = ({label, parameterID, mapOptionID, color, display, roundFunction, displayFunction, style, mappingOptions}) => {
     const knobID = useId()
     const labelID = useId()
 
@@ -29,7 +33,7 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, color, displa
 
                 if (!roundFunction) roundFunction = (value: number) => value
 
-                let displayFunction = (value: number) => {
+                if (!displayFunction) displayFunction = (value: number) => {
                     const naturalValue = functions.remapRange(value, min, max, properties.start, properties.end)
                     return `${(naturalValue * 100).toFixed(0)}%`
                 }
@@ -58,7 +62,7 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, color, displa
                 })
 
                 return (
-                    <div className="knob-container">
+                    <div className="knob-container" style={{...style}}>
                         <KnobHeadlessLabel className="knob-label" id={labelID} style={{color}}>
                             {label}
                         </KnobHeadlessLabel>
@@ -75,6 +79,8 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, color, displa
                             valueRawRoundFn={roundFunction}
                             onMouseDown={dragStart}
                             onMouseUp={dragEnd}
+                            onDragStart={dragStart}
+                            onDragEnd={dragEnd}
                             axis="y"
                             style={{outline: "none"}}
                             {...keyboardHandler}>
@@ -87,6 +93,7 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, color, displa
                         <KnobHeadlessOutput className="knob-value" htmlFor={knobID}>
                             {displayFunction(value)}
                         </KnobHeadlessOutput>
+                        <MappingOptions mapOptionID={mapOptionID} color={color} mappingOptions={mappingOptions}/>
                     </div>
                 )
             }}

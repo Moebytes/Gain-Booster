@@ -1,3 +1,5 @@
+import {Color, Solver, hexToRgb} from "./Color"
+
 export default class Functions {
     
     public static normalizeRange = (value: number, min: number, max: number) => {
@@ -13,13 +15,12 @@ export default class Functions {
         return Functions.denormalizeValue(normalized, newMin, newMax)
     }
 
-    public static skew = (normalized: number, skew: number) => {
-        if (skew === 1 || skew === 0) return normalized
-        return Math.pow(normalized, 1 / skew)
-    }
-      
-    public static unskew = (normalized: number, skew: number) => {
-        if (skew === 1 || skew === 0) return normalized
-        return Math.pow(normalized, skew)
+    public static calculateFilter = (hexColor: string) => {
+        const rgb = hexToRgb(hexColor) as any
+        if (!rgb) return ""
+        const color = new Color(rgb[0], rgb[1], rgb[2])
+        const solver = new Solver(color)
+        const result = solver.solve()
+        return result.filter
     }
 }

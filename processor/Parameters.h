@@ -17,14 +17,18 @@ public:
 
     std::atomic<float> gain = 1.0f;
     juce::AudioParameterFloat* gainParam;
+    juce::AudioParameterChoice* gainSkewParam;
 
     std::atomic<float> boost = 0.0f;
     juce::AudioParameterFloat* boostParam;
+    juce::AudioParameterChoice* boostSkewParam;
 
     std::atomic<float> pan = 0.0f;
     float panL = 0.0f;
     float panR = 1.0f;
     juce::AudioParameterFloat* panParam;
+    juce::AudioParameterChoice* panningLawParam;
+
 private:
     juce::AudioProcessorValueTreeState& treeRef;
     

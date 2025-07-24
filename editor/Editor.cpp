@@ -10,11 +10,10 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
     setResizable(true, true);
     addAndMakeVisible(webview);
 
-    setSize(500, 300);
+    setSize(510, 550);
 }
 
 Editor::~Editor() {
-    removeChildComponent(&webview);
 }
 
 auto Editor::visibilityChanged() -> void {
@@ -32,6 +31,9 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     .withOptionsFrom(gainRelay)
     .withOptionsFrom(boostRelay)
     .withOptionsFrom(panRelay)
+    .withOptionsFrom(gainSkewRelay)
+    .withOptionsFrom(boostSkewRelay)
+    .withOptionsFrom(panningLawRelay)
     .withNativeFunction("getDefaultParameter", [this](auto args, auto completion){ 
         return getDefaultParameter(args, completion); 
     });

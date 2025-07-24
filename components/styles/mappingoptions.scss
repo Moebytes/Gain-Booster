@@ -1,0 +1,16 @@
+.mapping-options {
+    margin-top: 20px;
+    display: flex;
+    gap: 8px;
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.mapping-option {
+    cursor: pointer;
+
+    svg {
+        display: block;
+    }
+}

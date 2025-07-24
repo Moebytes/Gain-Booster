@@ -1,0 +1,80 @@
+.lfobar-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    user-select: none;
+}
+
+.lfobar-label {
+    font-family: MaruMinya, sans-serif;
+    font-weight: bold;
+    letter-spacing: 2px;
+    font-size: 30px;
+}
+
+.lfobar-waves {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.wave-option {
+    cursor: pointer;
+}
+
+.wave-icon {
+    width: auto;
+    height: 30px;
+    margin-top: 6px;
+}
+
+.lfobar-rate {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    cursor: default;
+    user-select: none;
+}
+
+.lfobar-rate-part {
+    color: white;
+    font-family: MaruMinya, sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 2px;
+    margin-right: 2px;
+    width: 20px;
+    text-align: center;
+    cursor: ns-resize;
+    &:first-child {
+        margin: 0px;
+    }
+}
+
+.lfobar-rate-slash {
+    color: white;
+    font-family: MaruMinya, sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.lfobar-rate-text {
+    color: white;
+    font-family: MaruMinya, sans-serif;
+    font-weight: bold;
+    letter-spacing: 2px;
+    font-size: 20px;
+}
+
+.lfobar-rate-icon {
+    width: auto;
+    height: 30px;
+}

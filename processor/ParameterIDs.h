@@ -4,8 +4,11 @@
 
 struct ParameterIDs {
     juce::ParameterID gain;
+    juce::ParameterID gainSkew;
     juce::ParameterID boost;
+    juce::ParameterID boostSkew;
     juce::ParameterID pan;
+    juce::ParameterID panningLaw;
 
     static auto loadFromJSON() -> ParameterIDs {
         ParameterIDs parameterIDs;
@@ -28,8 +31,11 @@ struct ParameterIDs {
         };
 
         parameterIDs.gain = getParameter("gain");
+        parameterIDs.gainSkew = getParameter("gainSkew");
         parameterIDs.boost = getParameter("boost");
+        parameterIDs.boostSkew = getParameter("boostSkew");
         parameterIDs.pan = getParameter("pan");
+        parameterIDs.panningLaw = getParameter("panningLaw");
 
         return parameterIDs;
     }

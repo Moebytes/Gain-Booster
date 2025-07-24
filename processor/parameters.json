@@ -3,12 +3,24 @@
         "id": "gain", 
         "version": 1
     },
+    "gainSkew": {
+        "id": "gainSkew", 
+        "version": 1
+    },
     "boost": {
         "id": "boost", 
         "version": 1
     },
+    "boostSkew": {
+        "id": "boostSkew", 
+        "version": 1
+    },
     "pan": {
         "id": "pan", 
+        "version": 1
+    },
+    "panningLaw": {
+        "id": "panningLaw", 
         "version": 1
     }
 }

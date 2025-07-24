@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react"
 import * as JUCE from "juce-framework-frontend-mirror"
 
-interface JUCEProperties {
+interface JUCESliderProperties {
     start: number
     end: number
     skew: number
@@ -16,7 +16,7 @@ interface Props {
     parameterID: string
     children: (props: {
         value: number
-        properties: JUCEProperties
+        properties: JUCESliderProperties
         onChange: (value: number) => void
         reset: () => void
         dragStart: () => void
@@ -30,6 +30,7 @@ const JuceSlider: React.FunctionComponent<Props> = ({parameterID, children}) => 
     const sliderState = JUCE.getSliderState(parameterID)!
     const [properties, setProperties] = useState(sliderState.properties)
     const [value, setValue] = useState(sliderState.getNormalisedValue())
+    const [dragging, setDragging] = useState(false)
 
     useEffect(() => {
         const valueID = sliderState.valueChangedEvent.addListener(() => {
@@ -56,11 +57,23 @@ const JuceSlider: React.FunctionComponent<Props> = ({parameterID, children}) => 
 
     const handleDragStart = () => {
         sliderState.sliderDragStarted()
+        setDragging(true)
     }
 
     const handleDragEnd = () => {
         sliderState.sliderDragEnded()
+        setDragging(false)
     }
+
+    useEffect(() => {
+        const handleMouseUp = () => {
+            if (dragging) handleDragEnd()
+        }
+        document.addEventListener("mouseup", handleMouseUp)
+        return () => {
+            document.removeEventListener("mouseup", handleMouseUp)
+        }
+    }, [dragging])
 
     return (
         <>
