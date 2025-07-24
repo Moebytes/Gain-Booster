@@ -1,5 +1,6 @@
 #include "Processor.h"
 #include "Editor.h"
+#include "BPM.h"
 #include "CheckAudioSafety.h"
 
 Processor::Processor() : AudioProcessor(
@@ -23,7 +24,7 @@ auto Processor::releaseResources() -> void {
 auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] juce::MidiBuffer& midiMessages) -> void {
     juce::ScopedNoDenormals noDenormals;
 
-    params.init(getPlayHead());
+    params.init();
 
     auto mainInput  = getBusBuffer(buffer, true, 0);
     auto mainOutput = getBusBuffer(buffer, false, 0);
@@ -34,7 +35,12 @@ auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] 
     float* outputL = mainOutput.getWritePointer(0);
     float* outputR = mainOutput.getNumChannels() > 1 ? mainOutput.getWritePointer(1) : outputL;
 
+    auto [bpm, ppq, hostRunning] = BPM::getBPMAndPPQ(getPlayHead());
+
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+        double samplePPQ = ppq + (sample / (getSampleRate() * 60.0 / bpm));
+
+        params.setHostInfo(samplePPQ, bpm, hostRunning);
         params.update();
 
         float gain = params.gain * params.boost;

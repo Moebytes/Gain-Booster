@@ -3,27 +3,20 @@
 
 class BPM {
 public:
+    static auto getBPMAndPPQ(const juce::AudioPlayHead* playhead) noexcept -> std::tuple<double, double, bool> {
+        double bpm = 120.0;
+        double ppq = 0.0;
+        bool hostRunning = false;
 
-    auto reset() noexcept -> void {
-        bpm = 120.0;
-    }
-    
-    auto update(const juce::AudioPlayHead* playhead) noexcept -> void {
-        reset();
-        if (playhead == nullptr) return;
-
-        const auto info = playhead->getPosition();
-        if (!info.hasValue()) return;
-
-        const auto& pos = *info;
-        if (pos.getBpm().hasValue()) {
-            bpm = *pos.getBpm();
+        if (playhead != nullptr) {
+            juce::AudioPlayHead::PositionInfo posInfo;
+            if (playhead->getPosition()) {
+                bpm = posInfo.getBpm().orFallback(120.0);
+                ppq = posInfo.getPpqPosition().orFallback(0.0);
+                hostRunning = posInfo.getIsPlaying();
+            }
         }
-    }
 
-    auto getBPM() const noexcept -> double {
-        return bpm;
+        return {bpm, ppq, hostRunning};
     }
-private:
-    double bpm = 120.0;
 };

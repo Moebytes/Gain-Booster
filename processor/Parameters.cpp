@@ -153,9 +153,7 @@ auto Parameters::reset() noexcept -> void {
     panLFO.reset();
 }
 
-auto Parameters::init(const juce::AudioPlayHead* playhead) noexcept -> void {
-    bpmInfo.update(playhead);
-
+auto Parameters::init() noexcept -> void {
     const auto smoothers = std::vector{
         std::pair{gainParam, &gainSmoother},
         std::pair{boostParam, &boostSmoother},
@@ -167,21 +165,34 @@ auto Parameters::init(const juce::AudioPlayHead* playhead) noexcept -> void {
     }
 }
 
+auto Parameters::setHostInfo(double newPPQ, double newBPM, bool newHostRunning) noexcept -> void {
+    this->ppq = newPPQ;
+    this->bpm = newBPM;
+    this->hostRunning = newHostRunning;
+}
+
 auto Parameters::update() noexcept -> void {
-    double bpm = bpmInfo.getBPM();
-
     gainLFO.setType(gainLFOTypeParam->getCurrentChoiceName());
-    float gainLFOSyncedTime = gainLFORateParam->get();
-    float gainLFOFreq = static_cast<float>(bpm / 60.0 / gainLFOSyncedTime);
-    gainLFO.setRate(gainLFOFreq);
-    float gainLFOValue = gainLFO.nextSample();
-
     panLFO.setType(panLFOTypeParam->getCurrentChoiceName());
-    float panLFOSyncedTime = panLFORateParam->get();
-    float panLFOFreq = static_cast<float>(bpm / 60.0 / panLFOSyncedTime);
-    panLFO.setRate(panLFOFreq);
-    float panLFOValue = panLFO.nextSample();
 
+    float gainLFOSyncedTime = gainLFORateParam->get();
+    float panLFOSyncedTime = panLFORateParam->get();
+
+    if (hostRunning) {
+        gainLFO.setSyncedRate(gainLFOSyncedTime);
+        gainLFO.syncFromHost(ppq, bpm);
+    
+        panLFO.setSyncedRate(panLFOSyncedTime);
+        panLFO.syncFromHost(ppq, bpm);
+    } else {
+        gainLFO.setRateHz(static_cast<float>(bpm / 60.0 / gainLFOSyncedTime));
+        panLFO.setRateHz(static_cast<float>(bpm / 60.0 / panLFOSyncedTime));
+    }
+
+    float gainLFOValue = gainLFO.getSample();
+    float panLFOValue = panLFO.getSample();
+
+    float gainLFOAmount = gainLFOAmountParam->get();
     float panLFOAmount = panLFOAmountParam->get();
 
     const auto& gainSkew = gainSkewParam->getCurrentChoiceName();
@@ -193,7 +204,6 @@ auto Parameters::update() noexcept -> void {
         gain = std::pow(gain, 2.0f);
     }
 
-    float gainLFOAmount = gainLFOAmountParam->get();
     gain *= juce::jmap(gainLFOValue, -1.0f, 1.0f, 1.0f - gainLFOAmount, 1.0f);
 
     const auto& boostSkew = boostSkewParam->getCurrentChoiceName();

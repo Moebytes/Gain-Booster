@@ -2,7 +2,6 @@
 #include <JuceHeader.h>
 #include "ParameterIDs.h"
 #include "LFO.h"
-#include "BPM.h"
 
 class Parameters {
 public:
@@ -12,9 +11,9 @@ public:
 
     auto prepareToPlay(double sampleRate) noexcept -> void;
     auto reset() noexcept -> void;
-    auto init(const juce::AudioPlayHead* playhead) noexcept -> void;
+    auto init() noexcept -> void;
     auto update() noexcept -> void;
-    auto updateBPM(const juce::AudioPlayHead* playhead) noexcept -> void;
+    auto setHostInfo(double newPPQ, double newBPM, bool newHostRunning) noexcept -> void;
 
     static ParameterIDs paramIDs;
 
@@ -49,7 +48,9 @@ private:
 
     LFO gainLFO;
     LFO panLFO;
-    BPM bpmInfo;
+    double bpm = 120.0;
+    double ppq = 0.0;
+    bool hostRunning = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Parameters)
 };

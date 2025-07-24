@@ -12,43 +12,72 @@ public:
     }
 
     auto reset() -> void {
-        phase = 0.0;
+        this->freePhase = 0.0f;
     }
 
     auto setType(const juce::String& newType) -> void {
-        type = newType.toLowerCase();
+        this->type = newType.toLowerCase();
     }
 
-    auto setRate(float newFrequency) -> void {
-        jassert(newFrequency >= 0.0f);
-        frequency = newFrequency;
-        phaseIncrement = frequency / static_cast<float>(sampleRate);
+    auto setRateHz(float newFrequencyHz) -> void {
+        jassert(newFrequencyHz >= 0.0f);
+        this->frequencyHz = newFrequencyHz;
+        this->phaseIncrement = frequencyHz / static_cast<float>(sampleRate);
+        this->syncedToHost = false;
     }
 
-    auto nextSample() -> float {
-        float value = 0.0f;
+    auto setSyncedRate(float beatsPerCycle) -> void {
+        jassert(beatsPerCycle > 0.0f);
+        this->syncedBeatsPerCycle = beatsPerCycle;
+        this->syncedToHost = true;
+    }
 
-        if (type == "sine") {
-            value = std::sin(phase * juce::MathConstants<float>::twoPi);
-        } else if (type == "triangle") {
-            value = 4.0f * std::abs(phase - 0.5f) - 1.0f;
-        } else if (type == "square") {
-            value = (phase < 0.5f) ? 1.0f : -1.0f;
-        } else if (type == "saw") {
-            value = 2.0f * phase - 1.0f;
+    auto syncFromHost(double ppq, double bpm) -> void {
+        if (bpm <= 0.0 || syncedBeatsPerCycle <= 0.0) {
+            syncedToHost = false;
+            return;
         }
+    
+        const double beatPhase = std::fmod(ppq, syncedBeatsPerCycle) / syncedBeatsPerCycle;
+        this->syncedPhase = static_cast<float>(beatPhase);
+    }
 
-        phase += phaseIncrement;
-        if (phase >= 1.0f)
-            phase -= 1.0f;
-
+    auto getSample() -> float {
+        float currentPhase = syncedToHost ? syncedPhase : freePhase;
+        float value = renderWaveform(currentPhase);
+    
+        if (!syncedToHost) {
+            this->freePhase += phaseIncrement;
+            if (freePhase >= 1.0f)
+                freePhase -= 1.0f;
+        }
+    
         return value;
     }
 
 private:
-    juce::String type {"square"};
+    auto renderWaveform(float phase) const -> float {
+        if (type == "sine") {
+            return std::sin(phase * juce::MathConstants<float>::twoPi);
+        } else if (type == "triangle") {
+            return 4.0f * std::abs(phase - 0.5f) - 1.0f;
+        } else if (type == "square") {
+            return (phase < 0.5f) ? 1.0f : -1.0f;
+        } else if (type == "saw") {
+            return 2.0f * phase - 1.0f;
+        }
+        return 0.0f;
+    }
+
+    juce::String type{"square"};
+
     double sampleRate = 44100.0;
-    float phase = 0.0f;
-    float frequency = 0.0f;
+
+    float frequencyHz = 1.0f;
     float phaseIncrement = 0.0f;
+    float freePhase = 0.0f;
+
+    bool syncedToHost = false;
+    float syncedBeatsPerCycle = 1.0f;
+    float syncedPhase = 0.0f;
 };
