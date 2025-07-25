@@ -8,6 +8,7 @@
     "build": "npm run clean && rsbuild build && npm run embed-binary && npm run build-cpp",
     "build-cpp": "cmake -B build -DCMAKE_BUILD_TYPE=Release -DWEBVIEW_DEV_MODE=0 && cmake --build build --config Release",
     "embed-binary": "./embed_binary.sh",
+    "embed-binary-win": "./embed_binary.bat",
     "release": "./create_pkg.sh",
     "clean": "del-cli ./dist"
   },
