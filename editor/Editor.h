@@ -22,14 +22,14 @@ private:
     juce::WebSliderRelay gainRelay {Parameters::paramIDs.gain.getParamID()};
     juce::WebSliderParameterAttachment gainAttachment {*processorRef.params.gainParam, gainRelay, nullptr};
 
-    juce::WebComboBoxRelay gainSkewRelay {Parameters::paramIDs.gainSkew.getParamID()};
-    juce::WebComboBoxParameterAttachment gainSkewAttachment {*processorRef.params.gainSkewParam, gainSkewRelay, nullptr};
+    juce::WebComboBoxRelay gainCurveRelay {Parameters::paramIDs.gainCurve.getParamID()};
+    juce::WebComboBoxParameterAttachment gainCurveAttachment {*processorRef.params.gainCurveParam, gainCurveRelay, nullptr};
     
     juce::WebSliderRelay boostRelay {Parameters::paramIDs.boost.getParamID()};
     juce::WebSliderParameterAttachment boostAttachment {*processorRef.params.boostParam, boostRelay, nullptr};
 
-    juce::WebComboBoxRelay boostSkewRelay {Parameters::paramIDs.boostSkew.getParamID()};
-    juce::WebComboBoxParameterAttachment boostSkewAttachment {*processorRef.params.boostSkewParam, boostSkewRelay, nullptr};
+    juce::WebComboBoxRelay boostCurveRelay {Parameters::paramIDs.boostCurve.getParamID()};
+    juce::WebComboBoxParameterAttachment boostCurveAttachment {*processorRef.params.boostCurveParam, boostCurveRelay, nullptr};
 
     juce::WebSliderRelay panRelay {Parameters::paramIDs.pan.getParamID()};
     juce::WebSliderParameterAttachment panAttachment {*processorRef.params.panParam, panRelay, nullptr};

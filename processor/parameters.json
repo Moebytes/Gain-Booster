@@ -3,16 +3,16 @@
         "id": "gain", 
         "version": 1
     },
-    "gainSkew": {
-        "id": "gainSkew", 
+    "gainCurve": {
+        "id": "gainCurve", 
         "version": 1
     },
     "boost": {
         "id": "boost", 
         "version": 1
     },
-    "boostSkew": {
-        "id": "boostSkew", 
+    "boostCurve": {
+        "id": "boostCurve", 
         "version": 1
     },
     "pan": {

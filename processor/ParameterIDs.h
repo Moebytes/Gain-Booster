@@ -4,9 +4,9 @@
 
 struct ParameterIDs {
     juce::ParameterID gain;
-    juce::ParameterID gainSkew;
+    juce::ParameterID gainCurve;
     juce::ParameterID boost;
-    juce::ParameterID boostSkew;
+    juce::ParameterID boostCurve;
     juce::ParameterID pan;
     juce::ParameterID panningLaw;
 
@@ -38,9 +38,9 @@ struct ParameterIDs {
         };
 
         parameterIDs.gain = getParameter("gain");
-        parameterIDs.gainSkew = getParameter("gainSkew");
+        parameterIDs.gainCurve = getParameter("gainCurve");
         parameterIDs.boost = getParameter("boost");
-        parameterIDs.boostSkew = getParameter("boostSkew");
+        parameterIDs.boostCurve = getParameter("boostCurve");
         parameterIDs.pan = getParameter("pan");
         parameterIDs.panningLaw = getParameter("panningLaw");
 

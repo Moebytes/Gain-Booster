@@ -7,56 +7,64 @@ interface JUCEComboProperties {
     choices: string[]
 }
 
-interface Props {
+export interface WithJUCEComboBoxProps {
+    value: number
+    properties: JUCEComboProperties
+    onChange: (value: number) => void
+    reset: () => void
+}
+
+interface WithParameter {
     parameterID: string
-    children: (props: {
-        value: number
-        properties: JUCEComboProperties
-        onChange: (value: number) => void
-        reset: () => void
-    }) => React.ReactNode
 }
 
 const getDefaultParameter = JUCE.getNativeFunction("getDefaultParameter")
 
-const JuceComboBox: React.FunctionComponent<Props> = ({parameterID, children}) => {
-    const comboState = JUCE.getComboBoxState(parameterID)!
-    const [properties, setProperties] = useState(comboState.properties)
-    const [value, setValue] = useState(comboState.getChoiceIndex())
+const withJuceComboBox = <Props extends object & WithParameter>(
+    WrappedComponent: React.ComponentType<Props & WithJUCEComboBoxProps>, 
+): React.FunctionComponent<Props> => {
 
-    useEffect(() => {
-        const valueID = comboState.valueChangedEvent.addListener(() => {
-            setValue(comboState.getChoiceIndex())
-        })
-        const propsID = comboState.propertiesChangedEvent.addListener(() => {
-            setProperties(comboState.properties)
-        })
-        return () => {
-            comboState.valueChangedEvent.removeListener(valueID)
-            comboState.propertiesChangedEvent.removeListener(propsID)
+        const JuceComboBox: React.FunctionComponent<Props> = (props) => {
+            const {parameterID} = props
+            const comboState = JUCE.getComboBoxState(parameterID)!
+            const [properties, setProperties] = useState(comboState.properties)
+            const [value, setValue] = useState(comboState.getChoiceIndex())
+        
+            useEffect(() => {
+                const valueID = comboState.valueChangedEvent.addListener(() => {
+                    setValue(comboState.getChoiceIndex())
+                })
+                const propsID = comboState.propertiesChangedEvent.addListener(() => {
+                    setProperties(comboState.properties)
+                })
+                return () => {
+                    comboState.valueChangedEvent.removeListener(valueID)
+                    comboState.propertiesChangedEvent.removeListener(propsID)
+                }
+            }, [])
+        
+            const handleChange = (index: number) => {
+                comboState.setChoiceIndex(index)
+                setValue(index)
+            }
+        
+            const handleReset = async () => {
+                const defaultValue = await getDefaultParameter(parameterID)
+                handleChange(defaultValue)
+            }
+        
+            return (
+                <WrappedComponent
+                    {...props}
+                    value={value}
+                    properties={properties}
+                    onChange={handleChange}
+                    reset={handleReset}
+                />
+            )
         }
-    }, [])
 
-    const handleChange = (index: number) => {
-        comboState.setChoiceIndex(index)
-        setValue(index)
-    }
-
-    const handleReset = async () => {
-        const defaultValue = await getDefaultParameter(parameterID)
-        handleChange(defaultValue)
-    }
-
-    return (
-        <>
-            {children({
-                value,
-                properties,
-                onChange: handleChange,
-                reset: handleReset
-            })}
-        </>
-    )
+        return JuceComboBox
 }
 
-export default JuceComboBox
+export default withJuceComboBox

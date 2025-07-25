@@ -6,6 +6,7 @@
 class Parameters {
 public:
     Parameters(juce::AudioProcessorValueTreeState& tree);
+    auto rebind() noexcept -> void;
 
     static auto createParameterLayout() -> juce::AudioProcessorValueTreeState::ParameterLayout;
 
@@ -19,11 +20,11 @@ public:
 
     float gain = 1.0f;
     juce::AudioParameterFloat* gainParam;
-    juce::AudioParameterChoice* gainSkewParam;
+    juce::AudioParameterChoice* gainCurveParam;
 
     float boost = 0.0f;
     juce::AudioParameterFloat* boostParam;
-    juce::AudioParameterChoice* boostSkewParam;
+    juce::AudioParameterChoice* boostCurveParam;
 
     float pan = 0.0f;
     float panL = 0.0f;

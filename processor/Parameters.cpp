@@ -27,6 +27,10 @@ static auto resetParameter(const juce::AudioProcessorValueTreeState& tree,
 ParameterIDs Parameters::paramIDs = ParameterIDs::loadFromJSON();
 
 Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : treeRef(tree) {
+    this->rebind();
+}
+
+auto Parameters::rebind() noexcept -> void {
     using FloatPair = std::pair<juce::AudioParameterFloat*&, const juce::ParameterID*>;
     using ChoicePair = std::pair<juce::AudioParameterChoice*&, const juce::ParameterID*>;
 
@@ -41,8 +45,8 @@ Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : treeRef(tree)
     };
 
     auto choiceParameters = std::vector<ChoicePair>{
-        {gainSkewParam, &paramIDs.gainSkew},
-        {boostSkewParam, &paramIDs.boostSkew},
+        {gainCurveParam, &paramIDs.gainCurve},
+        {boostCurveParam, &paramIDs.boostCurve},
         {panningLawParam, &paramIDs.panningLaw},
         {gainLFOTypeParam, &paramIDs.gainLFOType},
         {panLFOTypeParam, &paramIDs.panLFOType}
@@ -65,7 +69,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        paramIDs.gainSkew, "Gain Skew", juce::StringArray{"logarithmic", "linear", "exponential"}, 1
+        paramIDs.gainCurve, "Gain Curve", juce::StringArray{"logarithmic", "linear", "exponential"}, 1
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -73,7 +77,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        paramIDs.boostSkew, "Boost Skew", juce::StringArray{"logarithmic", "linear", "exponential"}, 1
+        paramIDs.boostCurve, "Boost Curve", juce::StringArray{"logarithmic", "linear", "exponential"}, 1
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -195,23 +199,23 @@ auto Parameters::update() noexcept -> void {
     float gainLFOAmount = gainLFOAmountParam->get();
     float panLFOAmount = panLFOAmountParam->get();
 
-    const auto& gainSkew = gainSkewParam->getCurrentChoiceName();
+    const auto& gainCurve = gainCurveParam->getCurrentChoiceName();
     gain = gainSmoother.getNextValue();
 
-    if (gainSkew == "logarithmic") {
+    if (gainCurve == "logarithmic") {
         gain = std::pow(gain, 0.5f);
-    } else if (gainSkew == "exponential") {
+    } else if (gainCurve == "exponential") {
         gain = std::pow(gain, 2.0f);
     }
 
     gain *= juce::jmap(gainLFOValue, -1.0f, 1.0f, 1.0f - gainLFOAmount, 1.0f);
 
-    const auto& boostSkew = boostSkewParam->getCurrentChoiceName();
+    const auto& boostCurve = boostCurveParam->getCurrentChoiceName();
     float boostNorm = boostSmoother.getNextValue();
 
-    if (boostSkew == "logarithmic") {
+    if (boostCurve == "logarithmic") {
         boostNorm = std::pow(boostNorm, 0.5f);
-    } else if (boostSkew == "exponential") {
+    } else if (boostCurve == "exponential") {
         boostNorm = std::pow(boostNorm, 2.0f);
     }
 
