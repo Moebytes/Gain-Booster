@@ -24,6 +24,11 @@ That should be it!
 
 Download from the [releases](https://github.com/Moebits/Gain-Booster/releases) tab and rescan the plugins in your DAW.
 
+### Windows
+
+On Windows you need to install the WebView2 runtime, because the default WebView will probably be too old. 
+https://developer.microsoft.com/en-us/Microsoft-edge/webview2/
+
 ### Building
 
 Release build - `npm install` and `npm run build` should take care of it. 
