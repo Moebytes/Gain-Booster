@@ -1,5 +1,5 @@
 import React, {useContext} from "react"
-import withJuceComboBox, {WithJUCEComboBoxProps} from "./JuceComboBox"
+import withJuceComboBox, {WithJUCEComboBoxProps} from "./withJuceComboBox"
 import {ThemeContext} from "../index"
 import "./styles/Mappingoptions.scss"
 

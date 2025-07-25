@@ -6,7 +6,6 @@
 class Parameters {
 public:
     Parameters(juce::AudioProcessorValueTreeState& tree);
-    auto rebind() noexcept -> void;
 
     static auto createParameterLayout() -> juce::AudioProcessorValueTreeState::ParameterLayout;
 
@@ -14,7 +13,7 @@ public:
     auto reset() noexcept -> void;
     auto init() noexcept -> void;
     auto update() noexcept -> void;
-    auto setHostInfo(double newPPQ, double newBPM, bool newHostRunning) noexcept -> void;
+    auto setHostInfo(double ppq, double bpm, bool hostRunning) noexcept -> void;
 
     static ParameterIDs paramIDs;
 
@@ -46,6 +45,8 @@ private:
     juce::LinearSmoothedValue<float> gainSmoother;
     juce::LinearSmoothedValue<float> boostSmoother;
     juce::LinearSmoothedValue<float> panSmoother;
+    juce::LinearSmoothedValue<float> gainLFOAmountSmoother;
+    juce::LinearSmoothedValue<float> panLFOAmountSmoother;
 
     LFO gainLFO;
     LFO panLFO;

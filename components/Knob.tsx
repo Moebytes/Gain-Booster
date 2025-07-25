@@ -1,6 +1,6 @@
 import React, {useId} from "react"
 import {KnobHeadless, KnobHeadlessLabel, KnobHeadlessOutput, useKnobKeyboardControls} from "react-knob-headless"
-import withJuceSlider, {WithJUCESliderProps} from "./JuceSlider"
+import withJuceSlider, {WithJUCESliderProps} from "./withJuceSlider"
 import MappingOptions from "./MappingOptions"
 import functions from "../structures/Functions"
 import "./styles/knob.scss"
@@ -35,11 +35,11 @@ const Knob: React.FunctionComponent<Props & WithJUCESliderProps> = ({label, para
     if (!displayFunction) displayFunction = (value: number) => `${(value * 100).toFixed(0)}%`
 
     if (display === "decibels") {
-        displayFunction = (value: number) => `${(value * 12).toFixed(1)} dB`
+        displayFunction = (value: number) => `${value.toFixed(1)} dB`
     }
 
     if (display === "pan") {
-        displayFunction = (value: number) => `${Math.round((value - 0.5) * 100)} ${(value - 0.5) < 0 ? "L" : "R"}`;
+        displayFunction = (value: number) => `${Math.round(value * 50)} ${value < 0 ? "L" : "R"}`;
     }
 
     const keyboardHandler = useKnobKeyboardControls({
@@ -67,8 +67,6 @@ const Knob: React.FunctionComponent<Props & WithJUCESliderProps> = ({label, para
                 valueRaw={value}
                 valueRawDisplayFn={displayFunction}
                 valueRawRoundFn={roundFunction}
-                onMouseDown={dragStart}
-                onMouseUp={dragEnd}
                 onDragStart={dragStart}
                 onDragEnd={dragEnd}
                 axis="y"

@@ -5,4 +5,8 @@ class Functions {
 public:
     static auto streamToVector(juce::InputStream& stream) -> std::vector<std::byte>;
     static auto getMimeForExtension(const String& extension) -> const char*;
+    static auto displayPercent(float value, int) -> juce::String;
+    static auto displayDecibels(float value, int) -> juce::String;
+    static auto displayPan(float value, int) -> juce::String;
+    static auto displayLFORate(float value, int) -> juce::String;
 };

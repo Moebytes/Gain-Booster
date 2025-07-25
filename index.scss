@@ -31,7 +31,12 @@ html, body {
     margin: 0;
     background-color: var(--background);
     overflow: hidden;
+    text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+}
+
+img {
+    image-rendering: crisp-edges;
 }
 
 body {

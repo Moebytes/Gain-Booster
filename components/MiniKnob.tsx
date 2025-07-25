@@ -1,6 +1,6 @@
 import React, {useId} from "react"
 import {KnobHeadless, KnobHeadlessOutput, useKnobKeyboardControls} from "react-knob-headless"
-import withJuceSlider, {WithJUCESliderProps} from "./JuceSlider"
+import withJuceSlider, {WithJUCESliderProps} from "./withJuceSlider"
 import functions from "../structures/Functions"
 import "./styles/miniknob.scss"
 
@@ -54,8 +54,6 @@ const MiniKnob: React.FunctionComponent<Props & WithJUCESliderProps> = ({paramet
                 valueRaw={value}
                 valueRawDisplayFn={displayFunction}
                 valueRawRoundFn={roundFunction}
-                onMouseDown={dragStart}
-                onMouseUp={dragEnd}
                 onDragStart={dragStart}
                 onDragEnd={dragEnd}
                 axis="y"

@@ -29,6 +29,10 @@ const withJuceComboBox = <Props extends object & WithParameter>(
             const comboState = JUCE.getComboBoxState(parameterID)!
             const [properties, setProperties] = useState(comboState.properties)
             const [value, setValue] = useState(comboState.getChoiceIndex())
+
+            useEffect(() => {
+                setValue(comboState.getChoiceIndex())
+            }, [])
         
             useEffect(() => {
                 const valueID = comboState.valueChangedEvent.addListener(() => {

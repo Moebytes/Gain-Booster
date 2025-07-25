@@ -32,3 +32,35 @@ auto Functions::getMimeForExtension(const String& extension) -> const char* {
     jassertfalse;
     return "";
 }
+
+auto Functions::displayPercent(float value, int) -> juce::String {
+    return juce::String::formatted("%.0f%%", value * 100.0f);
+}
+
+auto Functions::displayDecibels(float value, int) -> juce::String  {
+    return juce::String::formatted("%.1f dB", value);
+}
+
+auto Functions::displayPan(float value, int) -> juce::String {
+    int position = static_cast<int>(value * 50.0f);
+    if (position < 0) {
+        return juce::String::formatted("%dL", -position);
+    } else {
+        return juce::String::formatted("%dR", position);
+    }
+}
+
+auto Functions::displayLFORate(float value, int) -> juce::String {
+    const float epsilon = 0.0001f;
+
+    for (int numerator = 1; numerator <= 4; ++numerator) {
+        for (int denominator = 1; denominator <= 32; ++denominator) {
+            float candidate = static_cast<float>(numerator) / static_cast<float>(denominator);
+            if (std::abs(value - candidate) < epsilon) {
+                return juce::String::formatted("%d/%d", numerator, denominator);
+            }
+        }
+    }
+
+    return juce::String(value);
+}

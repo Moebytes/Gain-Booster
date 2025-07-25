@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react"
 import * as JUCE from "juce-framework-frontend-mirror"
+import functions from "../structures/Functions"
 
 interface JUCESliderProperties {
     start: number
@@ -35,12 +36,17 @@ const withJuceSlider = <Props extends object & WithParameter>(
         const {parameterID} = props
         const sliderState = JUCE.getSliderState(parameterID)!
         const [properties, setProperties] = useState(sliderState.properties)
-        const [value, setValue] = useState(sliderState.getNormalisedValue())
+        const [value, setValue] = useState(sliderState.getScaledValue())
         const [dragging, setDragging] = useState(false)
+        if (parameterID === "pan") console.log({value, ...sliderState})
+
+        useEffect(() => {
+            setValue(sliderState.getScaledValue())
+        }, [])
     
         useEffect(() => {
             const valueID = sliderState.valueChangedEvent.addListener(() => {
-                setValue(sliderState.getNormalisedValue())
+                setValue(sliderState.getScaledValue())
             })
             const propsID = sliderState.propertiesChangedEvent.addListener(() => {
                 setProperties(sliderState.properties)
@@ -52,7 +58,8 @@ const withJuceSlider = <Props extends object & WithParameter>(
         }, [])
     
         const handleChange = (value: number) => {
-            sliderState.setNormalisedValue(value)
+            const normalized = functions.normalizeRange(value, properties.start, properties.end)
+            sliderState.setNormalisedValue(normalized)
             setValue(value)
         }
     

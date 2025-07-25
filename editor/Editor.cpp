@@ -46,7 +46,8 @@ auto Editor::getDefaultParameter(const juce::Array<juce::var>& args,
     juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
 
     juce::String paramID = args[0].toString();
-    float defaultValue = processorRef.tree.getParameter(paramID)->getDefaultValue();
+    auto param = processorRef.tree.getParameter(paramID);
+    float defaultValue = param->convertFrom0to1(param->getDefaultValue());
 
     completion(defaultValue);
 }

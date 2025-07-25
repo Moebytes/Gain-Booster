@@ -97,7 +97,6 @@ auto Processor::setStateInformation(const void* data, int sizeInBytes) -> void {
 
     if (xml.get() != nullptr && xml->hasTagName(tree.state.getType())) {
         tree.replaceState(juce::ValueTree::fromXml(*xml));
-        params.rebind();
     }
 }
 
