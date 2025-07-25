@@ -69,7 +69,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.boost, "Boost", juce::NormalisableRange<float>{0.0f, 12.0f, 0.01f}, 0.0f
+        paramIDs.boost, "Boost", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
@@ -77,7 +77,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.pan, "Pan", juce::NormalisableRange<float>{-1.0f, 1.0f, 0.01f}, 0.0f
+        paramIDs.pan, "Pan", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.5f
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
@@ -207,8 +207,7 @@ auto Parameters::update() noexcept -> void {
     gain *= juce::jmap(gainLFOValue, -1.0f, 1.0f, 1.0f - gainLFOAmount, 1.0f);
 
     const auto& boostSkew = boostSkewParam->getCurrentChoiceName();
-    float boostdB = boostSmoother.getNextValue();
-    float boostNorm = juce::jmap(boostdB, 0.0f, 12.0f, 0.0f, 1.0f);
+    float boostNorm = boostSmoother.getNextValue();
 
     if (boostSkew == "logarithmic") {
         boostNorm = std::pow(boostNorm, 0.5f);
@@ -216,18 +215,19 @@ auto Parameters::update() noexcept -> void {
         boostNorm = std::pow(boostNorm, 2.0f);
     }
 
-    boostdB = juce::jmap(boostNorm, 0.0f, 1.0f, 0.0f, 12.0f);
+    float boostdB = juce::jmap(boostNorm, 0.0f, 1.0f, 0.0f, 12.0f);
     boost = juce::Decibels::decibelsToGain(boostdB);
 
     const auto& panningLaw = panningLawParam->getCurrentChoiceName();
     pan = panSmoother.getNextValue();
-    pan = juce::jlimit(-1.0f, 1.0f, pan + panLFOValue * panLFOAmount);
+    pan = juce::jlimit(0.0f, 1.0f, pan + panLFOValue * panLFOAmount * 0.5f);
+    float panMapped = juce::jmap(pan, 0.0f, 1.0f, -1.0f, 1.0f);
 
     if (panningLaw == "triangle") {
-        trianglePanning(pan, panL, panR);
+        trianglePanning(panMapped, panL, panR);
     } else if (panningLaw == "linear") {
-        linearPanning(pan, panL, panR);
+        linearPanning(panMapped, panL, panR);
     } else {
-        constantPowerPanning(pan, panL, panR);
+        constantPowerPanning(panMapped, panL, panR);
     }
 }

@@ -10,6 +10,17 @@
 
 :root {
     --background: #0d0d0d;
+    --border: black;
+    --text: white;
+    --pink: #ff0db2;
+    --blue: #227eff;
+    --purple: #460dff;
+}
+
+.light {
+    --background: white;
+    --text: black;
+    --border: white;
 }
 
 html, body {
@@ -60,7 +71,7 @@ body {
 }
 
 .title-text {
-    color: white;
+    color: var(--text);
     font-family: Nagino, sans-serif;
     font-weight: bold;
     letter-spacing: 2px;
@@ -70,5 +81,14 @@ body {
 }
 
 .title-highlight {
-    color: #ff0db2;
+    color: var(--pink);
+}
+
+.theme-icon {
+    position: absolute;
+    right: 35px;
+    top: 35px;
+    width: auto;
+    height: 30px;
+    cursor: pointer;
 }

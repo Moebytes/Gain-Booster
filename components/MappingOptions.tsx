@@ -1,5 +1,6 @@
-import React, {useState} from "react"
+import React, {useContext} from "react"
 import JuceComboBox from "./JuceComboBox"
+import {ThemeContext} from "../index"
 import "./styles/Mappingoptions.scss"
 
 interface Props {
@@ -9,10 +10,14 @@ interface Props {
 }
 
 const MappingOptions: React.FunctionComponent<Props> = ({mapOptionID, color, mappingOptions = []}) => {
+    const {theme, setTheme} = useContext(ThemeContext)
+
+    const getSelectColor = () => {
+        return theme === "light" ? "black" : "white"
+    }
     return (
         <JuceComboBox parameterID={mapOptionID}>
             {({value, properties, onChange, reset}) => {
-
                 const shapes = {
                     logarithmic: <path d="M2,18 C6,4 10,2 18,2" stroke="currentColor" fill="none" strokeWidth="2"/>,
                     linear: <line x1="2" y1="18" x2="18" y2="2" stroke="currentColor" strokeWidth="2"/>,
@@ -30,7 +35,7 @@ const MappingOptions: React.FunctionComponent<Props> = ({mapOptionID, color, map
                             <div key={`${mapOptionID}-${i}`}
                                 className={`mapping-option ${value === i ? "selected" : ""}`}
                                 onClick={() => onChange(i)}
-                                style={{color: value === i ? "white" : color}}>
+                                style={{color: value === i ? getSelectColor() : color}}>
                                 <svg viewBox="0 0 20 20" width="15" height="15">
                                     {shapes[option]}
                                 </svg>

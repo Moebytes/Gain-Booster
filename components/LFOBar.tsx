@@ -1,4 +1,5 @@
-import React, {useState, useRef, useEffect} from "react"
+import React, {useState, useRef, useEffect, useContext} from "react"
+import {ThemeContext} from "../index"
 import JuceSlider from "./JuceSlider"
 import JuceComboBox from "./JuceComboBox"
 import MiniKnob from "./MiniKnob"
@@ -20,6 +21,11 @@ interface Props {
 }
 
 const LFOBar: React.FunctionComponent<Props> = ({lfoTypeID, lfoRateID, lfoAmountID, label, color}) => {
+    const {theme, setTheme} = useContext(ThemeContext)
+    
+    const getSelectFilter= () => {
+        return theme === "light" ? "brightness(0) invert(0)" : "brightness(0) invert(1)"
+    }
     return (
         <JuceComboBox parameterID={lfoTypeID}>
             {({value: lfoTypeValue, onChange: lfoTypeOnChange}) => (
@@ -107,7 +113,7 @@ const LFOBar: React.FunctionComponent<Props> = ({lfoTypeID, lfoRateID, lfoAmount
                                 <div key={`${lfoTypeID}-${i}`}
                                     className={`wave-option ${lfoTypeValue === i ? "selected" : ""}`}
                                     onClick={() => lfoTypeOnChange(i)}
-                                    style={{filter: lfoTypeValue === i ? "brightness(0) invert(1)" : ""}}>
+                                    style={{filter: lfoTypeValue === i ? getSelectFilter() : ""}}>
                                     {img}
                                 </div>
                             )

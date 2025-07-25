@@ -16,10 +16,6 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
 Editor::~Editor() {
 }
 
-auto Editor::visibilityChanged() -> void {
-    if (isVisible()) webview.goToURL(webview.getResourceProviderRoot());
-}
-
 auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     return juce::WebBrowserComponent::Options{}
     .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
@@ -28,6 +24,7 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     .withBackgroundColour(juce::Colours::white))
     .withResourceProvider([this](const auto& url) { return getResource(url); })
     .withNativeIntegrationEnabled()
+    .withKeepPageLoadedWhenBrowserIsHidden()
     .withOptionsFrom(gainRelay)
     .withOptionsFrom(boostRelay)
     .withOptionsFrom(panRelay)

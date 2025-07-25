@@ -26,30 +26,21 @@ const Knob: React.FunctionComponent<Props> = ({label, parameterID, mapOptionID, 
             {({value, properties, onChange, reset, dragStart, dragEnd}) => {
                 const minAngle = -145
                 const maxAngle = 145
-                const min = 0
-                const max = 1
+                const min = properties.start
+                const max = properties.end
                 const step = (max - min) / (properties.numSteps - 1)
                 const angle = functions.remapRange(value, min, max, minAngle, maxAngle)
 
                 if (!roundFunction) roundFunction = (value: number) => value
 
-                if (!displayFunction) displayFunction = (value: number) => {
-                    const naturalValue = functions.remapRange(value, min, max, properties.start, properties.end)
-                    return `${(naturalValue * 100).toFixed(0)}%`
-                }
+                if (!displayFunction) displayFunction = (value: number) => `${(value * 100).toFixed(0)}%`
 
                 if (display === "decibels") {
-                    displayFunction = (value: number) => {
-                        const naturalValue = functions.remapRange(value, min, max, properties.start, properties.end)
-                        return `${(naturalValue).toFixed(1)} dB`
-                    }
+                    displayFunction = (value: number) => `${(value * 12).toFixed(1)} dB`
                 }
 
                 if (display === "pan") {
-                    displayFunction = (value: number) => {
-                        const naturalValue = functions.remapRange(value, min, max, properties.start, properties.end)
-                        return `${+(naturalValue * 50).toFixed(0)} ${naturalValue < 0 ? "L" : "R"}`
-                    }
+                    displayFunction = (value: number) => `${Math.round((value - 0.5) * 100)} ${(value - 0.5) < 0 ? "L" : "R"}`;
                 }
 
                 const keyboardHandler = useKnobKeyboardControls({

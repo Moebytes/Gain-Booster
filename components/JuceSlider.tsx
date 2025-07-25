@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react"
 import * as JUCE from "juce-framework-frontend-mirror"
+import functions from "../structures/Functions"
 
 interface JUCESliderProperties {
     start: number

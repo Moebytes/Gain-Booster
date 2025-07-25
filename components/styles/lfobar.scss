@@ -43,7 +43,7 @@
 }
 
 .lfobar-rate-part {
-    color: white;
+    color: var(--text);
     font-family: MaruMinya, sans-serif;
     font-weight: bold;
     font-size: 20px;
@@ -58,7 +58,7 @@
 }
 
 .lfobar-rate-slash {
-    color: white;
+    color: var(--text);
     font-family: MaruMinya, sans-serif;
     font-weight: bold;
     font-size: 20px;
@@ -67,7 +67,7 @@
 }
 
 .lfobar-rate-text {
-    color: white;
+    color: var(--text);
     font-family: MaruMinya, sans-serif;
     font-weight: bold;
     letter-spacing: 2px;

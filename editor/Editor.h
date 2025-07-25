@@ -12,7 +12,6 @@ public:
     auto getResource(const juce::String& url) -> std::optional<juce::WebBrowserComponent::Resource>;
     auto webviewOptions() -> juce::WebBrowserComponent::Options;
     auto getWebviewFileBytes(const juce::String& resourceStr) -> std::vector<std::byte>;
-    auto visibilityChanged() -> void override;
 
     auto getDefaultParameter(const juce::Array<juce::var>& args, 
         juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
