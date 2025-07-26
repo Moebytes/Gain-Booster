@@ -38,8 +38,8 @@ public:
             return;
         }
     
-        const double beatPhase = std::fmod(ppq, syncedBeatsPerCycle) / syncedBeatsPerCycle;
-        this->syncedPhase = static_cast<float>(beatPhase);
+        const double beatsIntoCycle = std::fmod(ppq, syncedBeatsPerCycle);
+        syncedPhase = static_cast<float>(beatsIntoCycle / syncedBeatsPerCycle);
     }
 
     auto getSample() -> float {

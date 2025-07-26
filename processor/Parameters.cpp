@@ -193,10 +193,10 @@ auto Parameters::update() noexcept -> void {
     float panLFOSyncedTime = panLFORateParam->get();
 
     if (hostRunning) {
-        gainLFO.setSyncedRate(gainLFOSyncedTime);
+        gainLFO.setSyncedRate(1.0f / gainLFOSyncedTime);
         gainLFO.syncFromHost(ppq, bpm);
     
-        panLFO.setSyncedRate(panLFOSyncedTime);
+        panLFO.setSyncedRate(1.0f / panLFOSyncedTime);
         panLFO.syncFromHost(ppq, bpm);
     } else {
         gainLFO.setRateHz(static_cast<float>(bpm / 60.0 / gainLFOSyncedTime));

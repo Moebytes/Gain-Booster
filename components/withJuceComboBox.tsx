@@ -32,6 +32,7 @@ const withJuceComboBox = <Props extends object & WithParameter>(
 
             useEffect(() => {
                 setValue(comboState.getChoiceIndex())
+                setProperties(comboState.properties)
             }, [])
         
             useEffect(() => {

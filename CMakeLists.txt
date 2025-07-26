@@ -4,17 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (APPLE)
-    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE INTERNAL "")
-    set_source_files_properties(assets/icon_big.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-    set(MACOSX_BUNDLE_ICON_FILE icon_big.icns)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        MACOSX_BUNDLE TRUE
-        RESOURCE "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon_big.icns"
-    )
-endif()
-
-project(GainBooster VERSION 0.0.1)
+project(GainBooster VERSION 0.0.3)
 
 option(WEBVIEW_DEV_MODE "Enable webview dev mode (load from disk)" OFF)
 
@@ -44,6 +34,23 @@ juce_add_plugin(${PROJECT_NAME}
     NEEDS_WEB_BROWSER TRUE
     NEEDS_WEBVIEW2 TRUE
 )
+
+if (APPLE)
+    set(MACOSX_BUNDLE_ICON_FILE "icon_big.icns")
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/assets/icon_big.icns PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources")
+    
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_ICON_FILE ${MACOSX_BUNDLE_ICON_FILE}
+    )
+
+    target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/assets/icon_big.icns)
+endif()
+
+if (WIN32)
+    target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/assets/icon.rc)
+endif()
 
 juce_generate_juce_header(${PROJECT_NAME})
 

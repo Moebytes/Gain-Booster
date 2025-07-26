@@ -38,10 +38,10 @@ const withJuceSlider = <Props extends object & WithParameter>(
         const [properties, setProperties] = useState(sliderState.properties)
         const [value, setValue] = useState(sliderState.getScaledValue())
         const [dragging, setDragging] = useState(false)
-        if (parameterID === "pan") console.log({value, ...sliderState})
 
         useEffect(() => {
             setValue(sliderState.getScaledValue())
+            setProperties(sliderState.properties)
         }, [])
     
         useEffect(() => {
