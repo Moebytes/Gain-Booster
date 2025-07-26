@@ -13,7 +13,7 @@ public:
     auto reset() noexcept -> void;
     auto init() noexcept -> void;
     auto update() noexcept -> void;
-    auto setHostInfo(double ppq, double bpm, bool hostRunning) noexcept -> void;
+    auto setHostInfo(double bpm, double ppq, bool hostRunning) noexcept -> void;
 
     static ParameterIDs paramIDs;
 

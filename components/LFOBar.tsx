@@ -128,6 +128,7 @@ const LFOBarRate: React.FunctionComponent<LFORateProps & WithJUCESliderProps> = 
     }, [])
 
     useEffect(() => {
+        console.log(numerator / denominator)
         onChange(numerator / denominator)
     }, [numerator, denominator])
 

@@ -179,10 +179,17 @@ auto Parameters::init() noexcept -> void {
     }
 }
 
-auto Parameters::setHostInfo(double newPPQ, double newBPM, bool newHostRunning) noexcept -> void {
-    this->ppq = newPPQ;
-    this->bpm = newBPM;
-    this->hostRunning = newHostRunning;
+auto Parameters::setHostInfo(double bpm, double ppq, bool hostRunning) noexcept -> void {
+    this->bpm = bpm;
+    this->ppq = ppq;
+    this->hostRunning = hostRunning;
+
+    if (hostRunning) {
+        gainLFO.setBPM(bpm);
+        panLFO.setBPM(bpm);
+        gainLFO.syncFromHost(ppq);
+        panLFO.syncFromHost(ppq);
+    }
 }
 
 auto Parameters::update() noexcept -> void {
@@ -193,14 +200,11 @@ auto Parameters::update() noexcept -> void {
     float panLFOSyncedTime = panLFORateParam->get();
 
     if (hostRunning) {
-        gainLFO.setSyncedRate(1.0f / gainLFOSyncedTime);
-        gainLFO.syncFromHost(ppq, bpm);
-    
-        panLFO.setSyncedRate(1.0f / panLFOSyncedTime);
-        panLFO.syncFromHost(ppq, bpm);
+        gainLFO.setSyncedRate(gainLFOSyncedTime);
+        panLFO.setSyncedRate(panLFOSyncedTime);
     } else {
-        gainLFO.setRateHz(static_cast<float>(bpm / 60.0 / gainLFOSyncedTime));
-        panLFO.setRateHz(static_cast<float>(bpm / 60.0 / panLFOSyncedTime));
+        gainLFO.setHzRate(static_cast<float>(bpm / 60.0 / gainLFOSyncedTime));
+        panLFO.setHzRate(static_cast<float>(bpm / 60.0 / panLFOSyncedTime));
     }
 
     float gainLFOValue = gainLFO.getSample();

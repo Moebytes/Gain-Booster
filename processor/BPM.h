@@ -4,14 +4,14 @@
 class BPM {
 public:
     static auto getBPMAndPPQ(const juce::AudioPlayHead* playhead) noexcept -> std::tuple<double, double, bool> {
-        double bpm = 120.0;
+        double bpm = 150.0;
         double ppq = 0.0;
         bool hostRunning = false;
 
         if (playhead != nullptr) {
             juce::AudioPlayHead::PositionInfo posInfo;
             if (playhead->getPosition()) {
-                bpm = posInfo.getBpm().orFallback(120.0);
+                bpm = posInfo.getBpm().orFallback(150.0);
                 ppq = posInfo.getPpqPosition().orFallback(0.0);
                 hostRunning = posInfo.getIsPlaying();
             }
