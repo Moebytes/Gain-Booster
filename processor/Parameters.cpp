@@ -12,17 +12,16 @@ static auto castParameter(const juce::AudioProcessorValueTreeState& tree,
 template <typename T>
 static auto resetParameter(const juce::AudioProcessorValueTreeState& tree, 
     const juce::AudioParameterFloat* param, T*& dest) -> void {
-    if (auto* paramObj = tree.getParameter(param->getParameterID())) {
-        *dest = paramObj->getDefaultValue();
-    }
+    auto* paramObj = tree.getParameter(param->getParameterID());
+    if (paramObj) *dest = paramObj->getDefaultValue();
+    
 }
 
 template <typename T>
 static auto resetParameter(const juce::AudioProcessorValueTreeState& tree, 
     const juce::AudioParameterChoice* param, T*& dest) -> void {
-    if (auto* paramObj = tree.getParameter(param->getParameterID())) {
-        *dest = static_cast<T>(paramObj->getDefaultValue());
-    }
+    auto* paramObj = tree.getParameter(param->getParameterID());
+    if (paramObj) *dest = static_cast<T>(paramObj->getDefaultValue());
 }
 
 ParameterIDs Parameters::paramIDs = ParameterIDs::loadFromJSON();

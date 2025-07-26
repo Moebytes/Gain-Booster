@@ -38,7 +38,7 @@ auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] 
     auto [bpm, ppq, hostRunning] = BPM::getBPMAndPPQ(getPlayHead());
     params.setHostInfo(bpm, ppq, hostRunning);
 
-    for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+    for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
         params.update();
 
         float gain = params.gain * params.boost;
@@ -86,16 +86,58 @@ auto Processor::createEditor() -> juce::AudioProcessorEditor* {
     return new Editor(*this);
 }
 
+auto Processor::savePreset(const juce::String& name = "", const juce::String& author = "") -> juce::String {
+    auto obj = std::make_unique<juce::DynamicObject>();
+
+    obj->setProperty("plugin", JucePlugin_Name);
+    obj->setProperty("version", JucePlugin_VersionString);
+    obj->setProperty("name", name);
+    obj->setProperty("author", author);
+    obj->setProperty("modified", juce::Time::getCurrentTime().toISO8601(true));
+    obj->setProperty("presetFormat", 1);
+
+    auto parameters = std::make_unique<juce::DynamicObject>();
+
+    for (int i = 0; i < tree.state.getNumProperties(); i++) {
+        auto id = tree.state.getPropertyName(i);
+        parameters->setProperty(id.toString(), tree.state[id]);
+    }
+
+    obj->setProperty("parameters", juce::var(parameters.release()));
+    auto json = juce::var{obj.release()};
+
+    return juce::JSON::toString(json, true);
+}
+
+auto Processor::loadPreset(const juce::String& jsonStr) -> void {
+    auto parsed = juce::JSON::fromString(jsonStr);
+    auto* obj = parsed.getDynamicObject();
+    if (obj == nullptr) return;
+
+    auto parameters = juce::var{obj->getProperty("parameters")};
+    auto* paramObj = parameters.getDynamicObject();
+    if (paramObj == nullptr) return;
+
+    auto newState = juce::ValueTree{tree.state.createCopy()};
+
+    for (const auto& property : paramObj->getProperties()) {
+        auto paramId = juce::Identifier{property.name.toString()};
+        if (newState.hasProperty(paramId)) {
+            newState.setProperty(paramId, property.value, nullptr);
+        }
+    }
+
+    tree.replaceState(newState);
+}
+
 auto Processor::getStateInformation(juce::MemoryBlock& destData) -> void {
-    copyXmlToBinary(*tree.copyState().createXml(), destData);
+    auto json = savePreset();
+    destData.replaceAll(json.toUTF8(), json.getNumBytesAsUTF8());
 }
 
 auto Processor::setStateInformation(const void* data, int sizeInBytes) -> void {
-    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
-
-    if (xml.get() != nullptr && xml->hasTagName(tree.state.getType())) {
-        tree.replaceState(juce::ValueTree::fromXml(*xml));
-    }
+    auto jsonStr = juce::String::fromUTF8(static_cast<const char*>(data), sizeInBytes);
+    loadPreset(jsonStr);
 }
 
 auto JUCE_CALLTYPE createPluginFilter() -> juce::AudioProcessor* {

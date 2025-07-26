@@ -28,6 +28,8 @@ public:
   auto getProgramName(int index) -> const juce::String override;
   auto changeProgramName(int index, const juce::String& newName) -> void override;
 
+  auto savePreset(const juce::String& name, const juce::String& author) -> juce::String;
+  auto loadPreset(const juce::String& jsonStr) -> void;
   auto getStateInformation(juce::MemoryBlock& destData) -> void override;
   auto setStateInformation(const void* data, int sizeInBytes) -> void override;
 

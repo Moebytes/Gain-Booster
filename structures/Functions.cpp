@@ -25,7 +25,8 @@ auto Functions::getMimeForExtension(const String& extension) -> const char* {
         {"woff2","font/woff2"      }
     };
 
-    if (const auto it = mimeMap.find(extension.toLowerCase()); it != mimeMap.end()) {
+    const auto it = mimeMap.find(extension.toLowerCase());
+    if (it != mimeMap.end()) {
         return it->second;
     }
 
@@ -34,9 +35,9 @@ auto Functions::getMimeForExtension(const String& extension) -> const char* {
 }
 
 auto Functions::checkAudioSafety(juce::AudioBuffer<float>& buffer) -> void {
-    for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
+    for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
         float* channelData = buffer.getWritePointer(channel);
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+        for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
             float value = channelData[sample];
             if (std::isnan(value)) {
                 DBG("NaN detected");
@@ -72,8 +73,8 @@ auto Functions::displayPan(float value, int) -> juce::String {
 auto Functions::displayLFORate(float value, int) -> juce::String {
     const float epsilon = 0.0001f;
 
-    for (int numerator = 1; numerator <= 4; ++numerator) {
-        for (int denominator = 1; denominator <= 32; ++denominator) {
+    for (int numerator = 1; numerator <= 4; numerator++) {
+        for (int denominator = 1; denominator <= 32; denominator++) {
             float candidate = static_cast<float>(numerator) / static_cast<float>(denominator);
             if (std::abs(value - candidate) < epsilon) {
                 return juce::String::formatted("%d/%d", numerator, denominator);
