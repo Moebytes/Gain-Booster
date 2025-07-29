@@ -5,6 +5,7 @@
 class LFO {
 public:
     LFO() = default;
+    virtual ~LFO() = default;
 
     auto prepareToPlay(double newSampleRate) -> void {
         sampleRate = newSampleRate;

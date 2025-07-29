@@ -6,18 +6,23 @@ class Editor : public juce::AudioProcessorEditor {
 public:
     Editor(Processor& p);
     ~Editor() override;
-
+    
     auto resized() -> void override;
 
     auto getResource(const juce::String& url) -> std::optional<juce::WebBrowserComponent::Resource>;
     auto webviewOptions() -> juce::WebBrowserComponent::Options;
     auto getWebviewFileBytes(const juce::String& resourceStr) -> std::vector<std::byte>;
 
+    static auto getSettingsFile() -> juce::File;
+    static auto setSettingKey(const juce::String& key, const juce::var& value) -> void;
+    static auto getSettingKey(const juce::String& key, const juce::var& defaultValue) -> juce::var;
+
     auto getDefaultParameter(const juce::Array<juce::var>& args, 
         juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
 
 private:
     Processor& processorRef;
+    juce::ComponentBoundsConstrainer constrainer;
 
     juce::WebSliderRelay gainRelay {Parameters::paramIDs.gain.getParamID()};
     juce::WebSliderParameterAttachment gainAttachment {*processorRef.params.gainParam, gainRelay, nullptr};

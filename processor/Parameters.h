@@ -6,6 +6,7 @@
 class Parameters {
 public:
     Parameters(juce::AudioProcessorValueTreeState& tree);
+    ~Parameters() = default;
 
     static auto createParameterLayout() -> juce::AudioProcessorValueTreeState::ParameterLayout;
 

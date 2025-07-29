@@ -32,7 +32,7 @@ html, body {
     background-color: var(--background);
     overflow: hidden;
     text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
+    font-size: clamp(0.5rem, 3vw, 2rem);
 }
 
 img {
@@ -57,7 +57,7 @@ body {
 .app {
     width: max-content;
     height: max-content;
-    gap: 30px;
+    gap: 1.8rem;
 }
 
 .knobs-container {
@@ -79,10 +79,10 @@ body {
     color: var(--text);
     font-family: Nagino, sans-serif;
     font-weight: bold;
-    letter-spacing: 2px;
-    font-size: 45px;
-    margin-top: 10px;
-    margin-bottom: 5px;
+    letter-spacing: 0.12rem;
+    font-size: 2.8rem;
+    margin-top: 0.6rem;
+    margin-bottom: 0.3rem;
 }
 
 .title-highlight {
@@ -91,9 +91,9 @@ body {
 
 .theme-icon {
     position: absolute;
-    right: 35px;
-    top: 35px;
+    right: 2.1rem;
+    top: 2.1rem;
     width: auto;
-    height: 30px;
+    height: 1.8rem;
     cursor: pointer;
 }
