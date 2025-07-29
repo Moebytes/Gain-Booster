@@ -55,7 +55,12 @@ endif()
 juce_generate_juce_header(${PROJECT_NAME})
 
 file(GLOB SRC_FILES "editor/*.cpp" "processor/*.cpp" "structures/*.cpp")
-target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
+
+if (APPLE)
+    file(GLOB OBJC_SRC_FILES "editor/*.mm")
+endif()
+
+target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES} ${OBJC_SRC_FILES})
 
 target_compile_definitions(${PROJECT_NAME}
     PUBLIC

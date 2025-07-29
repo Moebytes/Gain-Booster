@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react"
 import {createRoot} from "react-dom/client"
 import Knob from "./components/Knob"
 import LFOBar from "./components/LFOBar"
+import PresetBar from "./components/PresetBar"
 import parameters from "./processor/parameters.json"
 import dark from "./assets/dark.png"
 import light from "./assets/light.png"
@@ -84,6 +85,9 @@ const App: React.FunctionComponent = () => {
                     lfoRateID={parameters.panLFORate.id} 
                     lfoAmountID={parameters.panLFOAmount.id}  
                     color="#460dff"/>
+            </div>
+            <div className="preset-container">
+                <PresetBar/>
             </div>
             </ThemeContext.Provider>
         </div>

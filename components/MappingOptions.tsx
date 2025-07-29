@@ -35,7 +35,7 @@ const MappingOptions: React.FunctionComponent<Props & WithJUCEComboBoxProps> = (
                     className={`mapping-option ${value === i ? "selected" : ""}`}
                     onClick={() => onChange(i)}
                     style={{color: value === i ? getSelectColor() : color}}>
-                    <svg viewBox="0 0 20 20" width="15" height="15">
+                    <svg viewBox="0 0 20 20">
                         {shapes[option]}
                     </svg>
                 </div>

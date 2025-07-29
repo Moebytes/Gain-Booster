@@ -53,4 +53,21 @@ struct ParameterIDs {
 
         return parameterIDs;
     }
+
+    [[nodiscard]] auto getParamStringIDs() const -> std::vector<juce::String> {
+        juce::String jsonStr = juce::String::fromUTF8(BinaryData::parameters_json, BinaryData::parameters_jsonSize);
+
+        juce::var parsed = juce::JSON::parse(jsonStr);
+        auto* json = parsed.getDynamicObject();
+        jassert(json != nullptr);
+
+        std::vector<juce::String> keys;
+        keys.reserve(static_cast<size_t>(json->getProperties().size()));
+
+        for (const auto& prop : json->getProperties()) {
+            keys.push_back(prop.name.toString());
+        }
+
+        return keys;
+    }
 };

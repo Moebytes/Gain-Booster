@@ -1,0 +1,55 @@
+.preset-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 2rem;
+    margin-top: -1.5rem;
+    margin-bottom: 1rem;
+}
+
+.preset-title {
+    color: var(--text);
+    font-family: Nagino, sans-serif;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.preset-name {
+    color: var(--pink);
+    font-family: Nagino, sans-serif;
+    margin-top: 0.2rem;
+    font-size: 1.6rem;
+    &:hover {
+        cursor: pointer;
+        filter: brightness(130%);
+    }
+}
+
+.preset-arrows {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 0.6rem;
+}
+
+@mixin preset-arrow($color, $size) {
+    color: $color;
+    width: $size;
+    height: $size;
+    margin-left: -1rem;
+    &:hover {
+        cursor: pointer;
+        filter: brightness(130%);
+    }
+}
+
+$arrowSize: 2.8rem;
+
+.preset-left-arrow {
+    @include preset-arrow(var(--pink), $arrowSize);
+}
+
+.preset-right-arrow {
+    @include preset-arrow(var(--pink), $arrowSize);
+}

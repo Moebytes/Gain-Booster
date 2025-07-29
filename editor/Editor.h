@@ -17,7 +17,13 @@ public:
     static auto setSettingKey(const juce::String& key, const juce::var& value) -> void;
     static auto getSettingKey(const juce::String& key, const juce::var& defaultValue) -> juce::var;
 
+    auto savePresetToFile() -> void;
+    auto loadPresetFromFile() -> void;
+
     auto getDefaultParameter(const juce::Array<juce::var>& args, 
+        juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
+        
+    auto openPresetMenu(const juce::Array<juce::var>& args, 
         juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
 
 private:

@@ -1,4 +1,11 @@
 #include "Functions.h"
+#include <JuceHeader.h>
+
+#if JUCE_WINDOWS
+  #include <windows.h>
+  #include <shlobj.h>
+  #pragma comment(lib, "Shell32.lib")
+#endif
 
 auto Functions::streamToVector(juce::InputStream& stream) -> std::vector<std::byte> {
     std::vector<std::byte> result(static_cast<size_t>(stream.getTotalLength()));
@@ -40,13 +47,13 @@ auto Functions::checkAudioSafety(juce::AudioBuffer<float>& buffer) -> void {
         for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
             float value = channelData[sample];
             if (std::isnan(value)) {
-                DBG("NaN detected");
+                std::println("NaN detected");
                 return buffer.clear();
             } else if (std::isinf(value)) {
-                DBG("Inf detected");
+                std::println("Inf detected");
                 return buffer.clear();
             } else if (value < -2.0f || value > 2.0f) {
-                DBG("Sample out of range");
+                std::println("Sample out of range");
                 return buffer.clear();
             }
         }
@@ -83,4 +90,42 @@ auto Functions::displayLFORate(float value, int) -> juce::String {
     }
 
     return juce::String(value);
+}
+
+auto Functions::getDownloadsFolder() -> juce::File {
+    #if JUCE_WINDOWS
+        PWSTR path = nullptr;
+        if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, nullptr, &path))) {
+            juce::String downloadsPath = juce::String::fromUTF16(path);
+            CoTaskMemFree(path);
+            return juce::File(downloadsPath);
+        }
+        return juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    #else
+        auto downloadsPath = juce::File::getSpecialLocation(juce::File::userHomeDirectory).getChildFile("Downloads");
+        if (downloadsPath.exists() && downloadsPath.isDirectory()) {
+            return downloadsPath;
+        }
+        return juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    #endif
+}
+
+auto Functions::cleanFilename(const juce::String& input) -> juce::String {
+    static const juce::String illegalChars = "\"*/\\:<>?|";
+
+    juce::String result;
+    for (auto c : input) {
+        if (illegalChars.containsChar(c)) {
+            continue;
+        } else {
+            result += c;
+        }
+    }
+    result = result.trim();
+
+    if (result.isEmpty()) {
+        return "Untitled";
+    }
+    
+    return result;
 }

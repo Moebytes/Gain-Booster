@@ -14,7 +14,6 @@ static auto resetParameter(const juce::AudioProcessorValueTreeState& tree,
     const juce::AudioParameterFloat* param, T*& dest) -> void {
     auto* paramObj = tree.getParameter(param->getParameterID());
     if (paramObj) *dest = paramObj->getDefaultValue();
-    
 }
 
 template <typename T>
@@ -84,7 +83,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        paramIDs.panningLaw, "Panning Law", juce::StringArray{"constant", "triangle", "linear"}, 0
+        paramIDs.panningLaw, "Panning Law", juce::StringArray{"constant", "triangle", "linear"}, 1
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(

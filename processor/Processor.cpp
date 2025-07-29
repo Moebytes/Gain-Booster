@@ -98,15 +98,15 @@ auto Processor::savePreset(const juce::String& name = "", const juce::String& au
 
     auto parameters = std::make_unique<juce::DynamicObject>();
 
-    for (int i = 0; i < tree.state.getNumProperties(); i++) {
-        auto id = tree.state.getPropertyName(i);
-        parameters->setProperty(id.toString(), tree.state[id]);
+    for (const auto& id : params.paramIDs.getParamStringIDs()) {
+        auto param = tree.getParameter(id);
+        parameters->setProperty(id, param->getValue());
     }
 
     obj->setProperty("parameters", juce::var(parameters.release()));
     auto json = juce::var{obj.release()};
 
-    return juce::JSON::toString(json, true);
+    return juce::JSON::toString(json);
 }
 
 auto Processor::loadPreset(const juce::String& jsonStr) -> void {
@@ -118,16 +118,20 @@ auto Processor::loadPreset(const juce::String& jsonStr) -> void {
     auto* paramObj = parameters.getDynamicObject();
     if (paramObj == nullptr) return;
 
-    auto newState = juce::ValueTree{tree.state.createCopy()};
-
     for (const auto& property : paramObj->getProperties()) {
-        auto paramId = juce::Identifier{property.name.toString()};
-        if (newState.hasProperty(paramId)) {
-            newState.setProperty(paramId, property.value, nullptr);
+        auto id = property.name.toString();
+        auto* param = tree.getParameter(id);
+        if (param != nullptr) {
+            param->setValueNotifyingHost(property.value);
         }
     }
+}
 
-    tree.replaceState(newState);
+auto Processor::initPreset() -> void {
+    for (const auto& id : params.paramIDs.getParamStringIDs()) {
+        auto* param = tree.getParameter(id);
+        param->setValueNotifyingHost(param->getDefaultValue());
+    }
 }
 
 auto Processor::getStateInformation(juce::MemoryBlock& destData) -> void {

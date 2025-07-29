@@ -10,4 +10,6 @@ public:
     static auto displayDecibels(float value, int) -> juce::String;
     static auto displayPan(float value, int) -> juce::String;
     static auto displayLFORate(float value, int) -> juce::String;
+    static auto getDownloadsFolder() -> juce::File;
+    static auto cleanFilename(const juce::String& input) -> juce::String;
 };

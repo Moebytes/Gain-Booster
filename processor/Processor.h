@@ -1,7 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Parameters.h"
-#include "BPM.h"
 
 class Processor : public juce::AudioProcessor {
 public:
@@ -30,6 +29,8 @@ public:
 
   auto savePreset(const juce::String& name, const juce::String& author) -> juce::String;
   auto loadPreset(const juce::String& jsonStr) -> void;
+  auto initPreset() -> void;
+
   auto getStateInformation(juce::MemoryBlock& destData) -> void override;
   auto setStateInformation(const void* data, int sizeInBytes) -> void override;
 
