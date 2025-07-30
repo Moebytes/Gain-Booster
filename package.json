@@ -6,8 +6,9 @@
   "scripts": {
     "start": "rsbuild dev",
     "build": "npm run clean && npm run embed-binary && npm run build-cpp",
+    "build-win": "npm run clean && npm run embed-binary-win && npm run build-cpp",
     "build-cpp": "cmake -B build -DCMAKE_BUILD_TYPE=Release -DWEBVIEW_DEV_MODE=0 && cmake --build build --config Release",
-    "embed-binary": "rsbuild build && ./embed_binary.sh",
+    "embed-binary": "rsbuild build && embed_binary.sh",
     "embed-binary-win": "rsbuild build && ./embed_binary.bat",
     "release": "./create_pkg.sh",
     "clean": "del-cli ./dist"

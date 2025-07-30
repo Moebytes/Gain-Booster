@@ -8,9 +8,9 @@ namespace BinaryData
     const int           parameters_jsonSize = 902;
 
     extern const char*  presets_zip;
-    const int           presets_zipSize = 6451;
+    const int           presets_zipSize = 6892;
 
     extern const char*  webview_files_zip;
-    const int           webview_files_zipSize = 3389647;
+    const int           webview_files_zipSize = 3002807;
 
 }
