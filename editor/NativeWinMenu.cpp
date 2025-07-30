@@ -7,8 +7,7 @@ void showNativeWinMenu(const std::map<int, std::string>& items,
     const std::map<int, std::string>& userItems, const std::string& userFolder,
     const std::string& currentPresetName,
     const std::string& presetFolder,
-    std::function<void(int)> callback)
-{
+    std::function<void(int)> callback) {
     HMENU hMenu = CreatePopupMenu();
 
     for (const auto& [id, label] : items) {

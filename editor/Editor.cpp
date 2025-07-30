@@ -87,7 +87,7 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
             {4, "Add User Folder"}
         };
 
-        auto rawUserFolder = juce::String(Editor::getSettingKey("userFolder", ""));
+        juce::String rawUserFolder = Editor::getSettingKey("userFolder", "").toString();
         std::string userFolder = "";
         if (!rawUserFolder.isEmpty()) {
             userFolder = juce::File{rawUserFolder}.getFileName().toStdString();
@@ -413,9 +413,9 @@ auto Editor::loadPresetFromFile(std::function<void()> onComplete) -> void {
 auto Editor::savePresetToFile() -> void {
     auto* infoDialog = new juce::AlertWindow("Save Preset", "Preset Information:", juce::AlertWindow::NoIcon);
 
-    auto defaultName = this->currentPresetName;
+    juce::String defaultName = this->currentPresetName;
     if (defaultName == "Default") defaultName.clear();
-    auto defaultAuthor = juce::String(Editor::getSettingKey("saveAuthor", ""));
+    auto defaultAuthor = Editor::getSettingKey("saveAuthor", "").toString();
 
     infoDialog->addTextEditor("name", defaultName, "Name:");
     infoDialog->addTextEditor("author", defaultAuthor, "Author:");
@@ -520,7 +520,7 @@ auto Editor::loadUserPresets() -> void {
     this->userPresetNames.clear();
     this->userPresets.clear();
 
-    auto userFolder = juce::String(Editor::getSettingKey("userFolder", ""));
+    auto userFolder = Editor::getSettingKey("userFolder", "").toString();
     if (userFolder.isEmpty()) return;
 
     juce::File userFolderDir{userFolder};

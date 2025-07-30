@@ -47,13 +47,13 @@ auto Functions::checkAudioSafety(juce::AudioBuffer<float>& buffer) -> void {
         for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
             float value = channelData[sample];
             if (std::isnan(value)) {
-                std::println("NaN detected");
+                juce::Logger::outputDebugString("NaN detected");
                 return buffer.clear();
             } else if (std::isinf(value)) {
-                std::println("Inf detected");
+                juce::Logger::outputDebugString("Inf detected");
                 return buffer.clear();
             } else if (value < -2.0f || value > 2.0f) {
-                std::println("Sample out of range");
+                juce::Logger::outputDebugString("Sample out of range");
                 return buffer.clear();
             }
         }
@@ -96,9 +96,15 @@ auto Functions::getDownloadsFolder() -> juce::File {
     #if JUCE_WINDOWS
         PWSTR path = nullptr;
         if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, nullptr, &path))) {
-            juce::String downloadsPath = juce::String::fromUTF16(path);
+            int utf8Size = WideCharToMultiByte(CP_UTF8, 0, path, -1, nullptr, 0, nullptr, nullptr);
+            if (utf8Size > 0) {
+                auto utf8Path = std::unique_ptr<char[]>(new char[utf8Size]);
+                WideCharToMultiByte(CP_UTF8, 0, path, -1, utf8Path.get(), utf8Size, nullptr, nullptr);
+                juce::String downloadsPath = juce::String::fromUTF8(utf8Path.get());
+                CoTaskMemFree(path);
+                return juce::File(downloadsPath);
+            }
             CoTaskMemFree(path);
-            return juce::File(downloadsPath);
         }
         return juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     #else

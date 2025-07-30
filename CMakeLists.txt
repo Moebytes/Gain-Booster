@@ -18,8 +18,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(juce)
 
 juce_add_plugin(${PROJECT_NAME}
-    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon_big.ico"
-    ICON_SMALL "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon_small.ico"
     COMPANY_NAME Moebytes
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
