@@ -1,0 +1,23 @@
+{
+  "plugin": "Gain Booster",
+  "version": "0.0.4",
+  "name": "50% Volume",
+  "author": "Moebytes",
+  "modified": "2025-07-29T22:13:09.258-04:00",
+  "presetFormat": 1,
+  "hash": "58f54eb0fdb0e63badac38aca6e9a6ea",
+  "parameters": {
+    "gain": 0.5,
+    "gainCurve": 0.5,
+    "boost": 0.0,
+    "boostCurve": 0.5,
+    "pan": 0.5,
+    "panningLaw": 0.5,
+    "gainLFOType": 0.0,
+    "gainLFORate": 0.055130708962679,
+    "gainLFOAmount": 0.0,
+    "panLFOType": 0.0,
+    "panLFORate": 0.055130708962679,
+    "panLFOAmount": 0.0
+  }
+}

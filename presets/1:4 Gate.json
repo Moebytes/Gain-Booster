@@ -1,0 +1,23 @@
+{
+  "plugin": "Gain Booster",
+  "version": "0.0.4",
+  "name": "1/4 Gate",
+  "author": "Moebytes",
+  "modified": "2025-07-29T22:11:47.140-04:00",
+  "presetFormat": 1,
+  "hash": "f2f1625b6e1307339b33e66a769dca00",
+  "parameters": {
+    "gain": 1.0,
+    "gainCurve": 0.5,
+    "boost": 0.0,
+    "boostCurve": 0.5,
+    "pan": 0.5,
+    "panningLaw": 0.5,
+    "gainLFOType": 0.0,
+    "gainLFORate": 0.055130708962679,
+    "gainLFOAmount": 1.0,
+    "panLFOType": 0.0,
+    "panLFORate": 0.055130708962679,
+    "panLFOAmount": 0.0
+  }
+}

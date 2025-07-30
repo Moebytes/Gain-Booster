@@ -1,0 +1,23 @@
+{
+  "plugin": "Gain Booster",
+  "version": "0.0.4",
+  "name": "1/8 Autopan 50%",
+  "author": "Moebytes",
+  "modified": "2025-07-29T22:11:59.702-04:00",
+  "presetFormat": 1,
+  "hash": "c54d39931fff0c9644eb0d5dffd83ad3",
+  "parameters": {
+    "gain": 1.0,
+    "gainCurve": 0.5,
+    "boost": 0.0,
+    "boostCurve": 0.5,
+    "pan": 0.5,
+    "panningLaw": 0.5,
+    "gainLFOType": 0.0,
+    "gainLFORate": 0.02363464422524,
+    "gainLFOAmount": 0.0,
+    "panLFOType": 0.0,
+    "panLFORate": 0.02363464422524,
+    "panLFOAmount": 0.5
+  }
+}

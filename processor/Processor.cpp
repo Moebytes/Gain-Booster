@@ -103,20 +103,33 @@ auto Processor::savePreset(const juce::String& name = "", const juce::String& au
         parameters->setProperty(id, param->getValue());
     }
 
+    juce::var parameterVar{parameters.get()};
+    auto paramString = juce::JSON::toString(parameterVar);
+
+    juce::MD5 md5{paramString.toUTF8()};
+    auto hash = md5.toHexString();
+    
+    obj->setProperty("hash", hash);
     obj->setProperty("parameters", juce::var(parameters.release()));
     auto json = juce::var{obj.release()};
 
     return juce::JSON::toString(json);
 }
 
-auto Processor::loadPreset(const juce::String& jsonStr) -> void {
+auto Processor::loadPreset(const juce::String& jsonStr) -> juce::String {
     auto parsed = juce::JSON::fromString(jsonStr);
     auto* obj = parsed.getDynamicObject();
-    if (obj == nullptr) return;
+    if (obj == nullptr) return "";
+
+    juce::String presetName = "";
+
+    if (obj->hasProperty("name")) {
+        presetName = obj->getProperty("name").toString();
+    }
 
     auto parameters = juce::var{obj->getProperty("parameters")};
     auto* paramObj = parameters.getDynamicObject();
-    if (paramObj == nullptr) return;
+    if (paramObj == nullptr) return "";
 
     for (const auto& property : paramObj->getProperties()) {
         auto id = property.name.toString();
@@ -125,6 +138,8 @@ auto Processor::loadPreset(const juce::String& jsonStr) -> void {
             param->setValueNotifyingHost(property.value);
         }
     }
+
+    return presetName;
 }
 
 auto Processor::initPreset() -> void {

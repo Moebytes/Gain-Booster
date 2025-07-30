@@ -18,13 +18,26 @@ public:
     static auto getSettingKey(const juce::String& key, const juce::var& defaultValue) -> juce::var;
 
     auto savePresetToFile() -> void;
-    auto loadPresetFromFile() -> void;
+    auto loadPresetFromFile(std::function<void()> onComplete) -> void;
+    auto loadFactoryPresets() -> void;
 
     auto getDefaultParameter(const juce::Array<juce::var>& args, 
         juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
         
     auto openPresetMenu(const juce::Array<juce::var>& args, 
         juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
+
+    auto prevPreset(const juce::Array<juce::var>& args, 
+        juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
+
+    auto nextPreset(const juce::Array<juce::var>& args, 
+        juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
+
+    juce::String currentPresetName = "Default";
+    std::map<juce::String, juce::String, std::less<>> factoryPresets;
+    std::vector<juce::String> factoryPresetNames;
+    int presetIndex = 0;
+    juce::String presetFolder = "none";
 
 private:
     Processor& processorRef;

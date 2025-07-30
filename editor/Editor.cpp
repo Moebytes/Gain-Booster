@@ -25,6 +25,8 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
     setSize(width, height);
 
     addAndMakeVisible(webview);
+
+    this->loadFactoryPresets();
 }
 
 Editor::~Editor() {
@@ -55,6 +57,12 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     })
     .withNativeFunction("openPresetMenu", [this](auto args, auto completion){ 
         return this->openPresetMenu(args, completion); 
+    })
+    .withNativeFunction("prevPreset", [this](auto args, auto completion){ 
+        return this->prevPreset(args, completion); 
+    })
+    .withNativeFunction("nextPreset", [this](auto args, auto completion){ 
+        return this->nextPreset(args, completion); 
     });
 }
 
@@ -68,9 +76,8 @@ auto Editor::getDefaultParameter(const juce::Array<juce::var>& args,
     completion(defaultValue);
 }
 
-
 auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args, 
-    [[maybe_unused]] juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
 
         static const std::map<int, std::string> items = {
             {1, "Init Preset"},
@@ -78,23 +85,52 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
             {3, "Save Preset"}
         };
 
-        auto menuClick = [this](std::string action){
+        int factoryID = static_cast<int>(items.size()) + 1;
+        std::map<int, std::string> factoryItems;
+        for (int i = 0; i < static_cast<int>(factoryPresetNames.size()); i++) {
+            factoryItems[factoryID + i] = this->factoryPresetNames[static_cast<size_t>(i)].toStdString();
+        }
+
+        auto menuClick = [this, completion](std::string action){
             if (action == "Init Preset") {
                 this->processorRef.initPreset();
-                std::println("init preset called");
+                this->currentPresetName = "Default";
+                this->presetFolder = "none";
+                this->presetIndex = 0;
+                completion(this->currentPresetName);
             } else if (action == "Load Preset") {
-                this->loadPresetFromFile();
+                this->loadPresetFromFile([this, completion](){
+                    completion(this->currentPresetName);
+                });
             } else if (action == "Save Preset") {
                 this->savePresetToFile();
             }
         };
 
+        auto presetClick = [this, completion](int presetIdx) {
+            if (presetIdx >= 0 && presetIdx < static_cast<int>(this->factoryPresets.size())) {
+                auto presetName = this->factoryPresetNames[static_cast<size_t>(presetIdx)];
+                auto json = this->factoryPresets[presetName];
+                this->processorRef.loadPreset(json);
+                this->currentPresetName = presetName;
+                this->presetIndex = presetIdx;
+                this->presetFolder = "factory";
+                completion(this->currentPresetName);
+            }
+        };
+
         #if JUCE_MAC
-            showNativeMacMenu(items, [menuClick](int resultID) {
-                auto it = items.find(resultID);
-                if (it != items.end()) {
-                    auto action = it->second;
-                    menuClick(action);
+            showNativeMacMenu(items, factoryItems, [menuClick, presetClick, factoryID](int resultID) {
+                if (resultID == 0) return;
+
+                if (resultID < factoryID) {
+                    auto it = items.find(resultID);
+                    if (it != items.end()) {
+                        menuClick(it->second);
+                    }
+                } else if (resultID >= factoryID) {
+                    int presetIdx = resultID - factoryID;
+                    presetClick(presetIdx);
                 }
             });
         #else
@@ -103,6 +139,14 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
                 menu.addItem(id, label);
             }
 
+            juce::PopupMenu factoryMenu;
+            for (int i = 0; i < static_cast<int>(factoryPresetNames.size()); i++) {
+                int itemID = factoryID + i;
+                factoryMenu.addItem(itemID, this->factoryPresetNames[static_cast<size_t>(i)]);
+            }
+
+            menu.addSubMenu("Factory", factoryMenu);
+
             auto mousePos = juce::Desktop::getMousePosition();
             
             auto options = juce::PopupMenu::Options()
@@ -110,14 +154,56 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
                 .withTargetScreenArea(juce::Rectangle<int> {mousePos.x - 60, mousePos.y - 5, 1, 1});
 
             juce::PopupMenu::dismissAllActiveMenus();
-            menu.showMenuAsync(options, [menuClick](int resultID) {
-                auto it = items.find(resultID);
-                if (it != items.end()) {
-                    auto action = it->second;
-                    menuClick(action);
+            menu.showMenuAsync(options, [menuClick, presetClick, factoryID, completion](int resultID) {
+                if (resultID == 0) return;
+
+                if (resultID < factoryID) {
+                    auto it = items.find(resultID);
+                    if (it != items.end()) {
+                        auto action = it->second;
+                        menuClick(action);
+                    }
+                } else if (resultID >= factoryID) {
+                    int presetIdx = resultID - factoryID;
+                    presetClick(presetIdx);
                 }
             });
         #endif
+}
+
+auto Editor::prevPreset(const juce::Array<juce::var>& args,
+    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+        if (this->presetFolder == "factory") {
+            if (this->factoryPresetNames.empty()) return;
+            this->presetIndex = (presetIndex - 1 + static_cast<int>(factoryPresetNames.size())) % static_cast<int>(factoryPresetNames.size());
+            auto presetName = factoryPresetNames[static_cast<size_t>(presetIndex)];
+    
+            auto it = factoryPresets.find(presetName);
+            if (it != factoryPresets.end()) {
+                auto jsonString = it->second;
+                this->processorRef.loadPreset(jsonString);
+                this->currentPresetName = presetName;
+                return completion(presetName);
+            }
+        }
+}
+
+auto Editor::nextPreset(const juce::Array<juce::var>& args,
+    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+        if (this->presetFolder == "factory") {
+            if (this->factoryPresetNames.empty()) return;
+
+            this->presetIndex = (presetIndex + 1) % static_cast<int>(factoryPresetNames.size());
+            auto presetName = factoryPresetNames[static_cast<size_t>(presetIndex)];
+
+            auto it = factoryPresets.find(presetName);
+            if (it != factoryPresets.end()) {
+                auto jsonString = it->second;
+                this->processorRef.loadPreset(jsonString);
+                this->currentPresetName = presetName;
+                return completion(presetName);
+            }
+        }
 }
 
 auto Editor::resized() -> void {
@@ -130,7 +216,8 @@ auto Editor::getWebviewFileBytes(const juce::String& resourceStr) -> std::vector
     juce::MemoryInputStream zipStream(BinaryData::webview_files_zip, BinaryData::webview_files_zipSize, false);
     juce::ZipFile zip{zipStream};
 
-    if (auto* entry = zip.getEntry(resourceStr)) {
+    auto* entry = zip.getEntry(resourceStr);
+    if (entry != nullptr) {
         const std::unique_ptr<juce::InputStream> entryStream{zip.createStreamForEntry(*entry)};
         if (entryStream == nullptr) {
             jassertfalse;
@@ -189,7 +276,6 @@ auto Editor::getSettingKey(const juce::String& key, const juce::var& defaultValu
 
     juce::var json = juce::JSON::parse(file);
     if (!json.isObject()) return defaultValue;
-
     
     auto* obj = json.getDynamicObject();
     if (obj != nullptr) {
@@ -199,7 +285,7 @@ auto Editor::getSettingKey(const juce::String& key, const juce::var& defaultValu
     return defaultValue;
 }
 
-auto Editor::loadPresetFromFile() -> void {
+auto Editor::loadPresetFromFile(std::function<void()> onComplete) -> void {
     auto directoryPath = Editor::getSettingKey("loadDirectory", Functions::getDownloadsFolder().getFullPathName());
     juce::File directory{directoryPath};
 
@@ -208,12 +294,17 @@ auto Editor::loadPresetFromFile() -> void {
     );
 
     loadDialog->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this, loadDialog](const juce::FileChooser& picker) {
+        [this, loadDialog, onComplete](const juce::FileChooser& picker) {
             auto file = picker.getResult();
             if (file.existsAsFile()) {
                 Editor::setSettingKey("loadDirectory", file.getParentDirectory().getFullPathName());
                 juce::String jsonString = file.loadFileAsString();
-                processorRef.loadPreset(jsonString);
+                auto presetName = processorRef.loadPreset(jsonString);
+
+                this->currentPresetName = presetName;
+                this->presetIndex = 0;
+                this->presetFolder = "none";
+                onComplete();
             }
         }
     );
@@ -221,8 +312,13 @@ auto Editor::loadPresetFromFile() -> void {
 
 auto Editor::savePresetToFile() -> void {
     auto* infoDialog = new juce::AlertWindow("Save Preset", "Preset Information:", juce::AlertWindow::NoIcon);
-    infoDialog->addTextEditor("name", "", "Name:");
-    infoDialog->addTextEditor("author", "", "Author:");
+
+    auto defaultName = this->currentPresetName;
+    if (defaultName == "Default") defaultName.clear();
+    auto defaultAuthor = juce::String(Editor::getSettingKey("saveAuthor", ""));
+
+    infoDialog->addTextEditor("name", defaultName, "Name:");
+    infoDialog->addTextEditor("author", defaultAuthor, "Author:");
     infoDialog->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey));
     infoDialog->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey));
 
@@ -240,6 +336,7 @@ auto Editor::savePresetToFile() -> void {
             [this, saveDialog, name, author](const juce::FileChooser& picker) {
                 auto file = picker.getResult();
                 if (file != juce::File{}) {
+                    Editor::setSettingKey("saveAuthor", author);
                     Editor::setSettingKey("saveDirectory", file.getParentDirectory().getFullPathName());
                     auto jsonString = processorRef.savePreset(name, author);
                     file.replaceWithText(jsonString);
@@ -260,4 +357,33 @@ auto Editor::savePresetToFile() -> void {
     });
 
     infoDialog->enterModalState(true, nameCallback, true);
+}
+
+auto Editor::loadFactoryPresets() -> void {
+    juce::MemoryInputStream zipStream(BinaryData::presets_zip, BinaryData::presets_zipSize, false);
+    juce::ZipFile zip{zipStream};
+
+    this->factoryPresetNames.clear();
+    this->factoryPresets.clear();
+
+    for (int i = 0; i < zip.getNumEntries(); i++) {
+        auto* entry = zip.getEntry(i);
+
+        if (entry == nullptr || !entry->filename.endsWithIgnoreCase(".json")) continue;
+
+        std::unique_ptr<juce::InputStream> inputStream{zip.createStreamForEntry(i)};
+        if (inputStream == nullptr) continue;
+        
+        auto content = inputStream->readEntireStreamAsString();
+        auto json = juce::JSON::parse(content);
+
+        auto* obj = json.getDynamicObject();
+        if (obj != nullptr) {
+            auto presetName = obj->getProperty("name").toString();
+            if (presetName.isEmpty()) presetName = entry->filename;
+
+            this->factoryPresets[presetName] = content;
+            this->factoryPresetNames.push_back(presetName);
+        }
+    }
 }

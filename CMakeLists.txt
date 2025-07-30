@@ -4,7 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(GainBooster VERSION 0.0.3)
+project(GainBooster VERSION 0.0.4)
 
 option(WEBVIEW_DEV_MODE "Enable webview dev mode (load from disk)" OFF)
 
@@ -89,9 +89,22 @@ file(
     FORMAT zip VERBOSE
 )
 
+set(PRESETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/presets")
+set(PRESETS_ZIP "${CMAKE_BINARY_DIR}/presets.zip")
+
+file(GLOB_RECURSE PRESET_FILES RELATIVE ${PRESETS_DIR} "${PRESETS_DIR}/*")
+file(
+    ARCHIVE_CREATE
+    OUTPUT ${PRESETS_ZIP}
+    PATHS ${PRESET_FILES}
+    WORKING_DIRECTORY ${PRESETS_DIR}
+    FORMAT zip VERBOSE
+)
+
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         juce::juce_audio_utils
+        juce::juce_cryptography
         juce::juce_dsp
     PUBLIC
         juce::juce_recommended_config_flags

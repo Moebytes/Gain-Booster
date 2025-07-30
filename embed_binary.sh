@@ -4,6 +4,7 @@ BINARY_BUILDER=~/Documents/JUCE/extras/BinaryBuilder/Builds/MacOSX/build/Debug/B
 
 PARAMETERS_JSON="processor/parameters.json"
 WEBVIEW_ZIP="build/webview_files.zip"
+PRESETS_ZIP="build/presets.zip"
 OUTPUT_DIR="editor"
 CLASS_NAME="BinaryData"
 
@@ -12,6 +13,7 @@ mkdir -p "$OUTPUT_DIR"
 TMP_DIR=$(mktemp -d)
 cp "$PARAMETERS_JSON" "$TMP_DIR/"
 cp "$WEBVIEW_ZIP" "$TMP_DIR/"
+cp "$PRESETS_ZIP" "$TMP_DIR/"
 
 "$BINARY_BUILDER" "$TMP_DIR" "$OUTPUT_DIR" "$CLASS_NAME"
 

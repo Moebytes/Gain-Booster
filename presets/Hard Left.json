@@ -1,0 +1,23 @@
+{
+  "plugin": "Gain Booster",
+  "version": "0.0.4",
+  "name": "Hard Left",
+  "author": "Moebytes",
+  "modified": "2025-07-29T22:13:22.617-04:00",
+  "presetFormat": 1,
+  "hash": "08554a064e8efda12bc8f5cb32a515c0",
+  "parameters": {
+    "gain": 1.0,
+    "gainCurve": 0.5,
+    "boost": 0.415833324193954,
+    "boostCurve": 0.5,
+    "pan": 0.0,
+    "panningLaw": 0.5,
+    "gainLFOType": 0.0,
+    "gainLFORate": 0.055130708962679,
+    "gainLFOAmount": 0.0,
+    "panLFOType": 0.0,
+    "panLFORate": 0.055130708962679,
+    "panLFOAmount": 0.0
+  }
+}

@@ -3,18 +3,25 @@ import * as JUCE from "juce-framework-frontend-mirror"
 import "./styles/presetbar.scss"
 
 const openPresetMenu = JUCE.getNativeFunction("openPresetMenu")
+const prevPreset = JUCE.getNativeFunction("prevPreset")
+const nextPreset = JUCE.getNativeFunction("nextPreset")
 
 const PresetBar: React.FunctionComponent = () => {
-    const prevPreset = () => {
+    const [preset, setPreset] = useState("Default")
 
+    const prev = async () => {
+        const prev = await prevPreset()
+        if (prev) setPreset(prev)
     }
 
-    const nextPreset = () => {
-
+    const next = async () => {
+        const next = await nextPreset()
+        if (next) setPreset(next)
     }
 
     const presetMenu = async () => {
-        await openPresetMenu()
+        const name = await openPresetMenu()
+        if (name) setPreset(name)
     }
 
     const shapes = {
@@ -25,12 +32,12 @@ const PresetBar: React.FunctionComponent = () => {
     return (
         <div className="preset-bar">
             <span className="preset-title">Preset:</span>
-            <span className="preset-name" onClick={presetMenu}>Default</span>
+            <span className="preset-name" onClick={presetMenu}>{preset}</span>
             <div className="preset-arrows">
-                <svg className="preset-left-arrow" onClick={prevPreset} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <svg className="preset-left-arrow" onClick={prev} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     {shapes.leftArrow}
                 </svg>
-                <svg className="preset-right-arrow" onClick={nextPreset} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <svg className="preset-right-arrow" onClick={next} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     {shapes.rightArrow}
                 </svg>
             </div>
