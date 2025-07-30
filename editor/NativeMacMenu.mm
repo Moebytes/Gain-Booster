@@ -19,6 +19,8 @@ static std::function<void(int)> endCallback = nullptr;
 
 void showNativeMacMenu(const std::map<int, std::string>& items, 
     const std::map<int, std::string>& factoryItems,
+    const std::map<int, std::string>& userItems, const std::string& userFolder,
+    const std::string& currentPresetName, const std::string& presetFolder,
     std::function<void(int)> callback) {
     endCallback = callback;
 
@@ -46,7 +48,11 @@ void showNativeMacMenu(const std::map<int, std::string>& items,
 
             factoryMenuItem.target = delegate;
             factoryMenuItem.tag = pair.first;
-            [factoryMenu addItem: factoryMenuItem];
+            if (presetFolder == "factory" && pair.second == currentPresetName) {
+                [factoryMenuItem setState:NSControlStateValueOn];
+            }
+
+            [factoryMenu addItem:factoryMenuItem];
         }
 
         NSMenuItem* factoryMenuItem = [[NSMenuItem alloc] initWithTitle: @"Factory"
@@ -56,8 +62,33 @@ void showNativeMacMenu(const std::map<int, std::string>& items,
         [menu addItem: factoryMenuItem];
     }
 
+    if (!userItems.empty()) {
+        NSString* nsUserFolder = [NSString stringWithUTF8String: userFolder.c_str()];
+        NSMenu* userMenu = [[NSMenu alloc] initWithTitle: nsUserFolder];
+
+        for (const auto& pair : userItems) {
+            NSString* title = [NSString stringWithUTF8String:pair.second.c_str()];
+            NSMenuItem* userMenuItem = [[NSMenuItem alloc] initWithTitle:title
+                action: @selector(menuItemSelected:) keyEquivalent: @""];
+
+            userMenuItem.target = delegate;
+            userMenuItem.tag = pair.first;
+            if (presetFolder == "user" && pair.second == currentPresetName) {
+                [userMenuItem setState:NSControlStateValueOn];
+            }
+
+            [userMenu addItem: userMenuItem];
+        }
+
+        NSMenuItem* userMenuItem = [[NSMenuItem alloc] initWithTitle: nsUserFolder
+               action:nil keyEquivalent: @""];
+
+        [userMenuItem setSubmenu: userMenu];
+        [menu addItem: userMenuItem];
+    }
+
     NSPoint mouseLocation = [NSEvent mouseLocation];
-    const CGFloat estimatedMenuHeight = (items.size() + 1) * 22.0;
+    const CGFloat estimatedMenuHeight = (items.size() + 2) * 22.0;
     const CGFloat estimatedMenuWidth = 110.0;
 
     mouseLocation.y += estimatedMenuHeight;

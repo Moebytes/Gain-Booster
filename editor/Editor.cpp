@@ -27,6 +27,7 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
     addAndMakeVisible(webview);
 
     this->loadFactoryPresets();
+    this->loadUserPresets();
 }
 
 Editor::~Editor() {
@@ -79,16 +80,30 @@ auto Editor::getDefaultParameter(const juce::Array<juce::var>& args,
 auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args, 
     juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
 
-        static const std::map<int, std::string> items = {
+        std::map<int, std::string> items = {
             {1, "Init Preset"},
             {2, "Load Preset"},
-            {3, "Save Preset"}
+            {3, "Save Preset"},
+            {4, "Add User Folder"}
         };
+
+        auto rawUserFolder = juce::String(Editor::getSettingKey("userFolder", ""));
+        std::string userFolder = "";
+        if (!rawUserFolder.isEmpty()) {
+            userFolder = juce::File{rawUserFolder}.getFileName().toStdString();
+            items.insert(std::make_pair(5, "Remove User Folder"));
+        }
 
         int factoryID = static_cast<int>(items.size()) + 1;
         std::map<int, std::string> factoryItems;
         for (int i = 0; i < static_cast<int>(factoryPresetNames.size()); i++) {
             factoryItems[factoryID + i] = this->factoryPresetNames[static_cast<size_t>(i)].toStdString();
+        }
+
+        int userContentID = factoryID + static_cast<int>(factoryItems.size()) + 1;
+        std::map<int, std::string> userItems;
+        for (int i = 0; i < static_cast<int>(userPresetNames.size()); i++) {
+            userItems[userContentID + i] = this->userPresetNames[static_cast<size_t>(i)].toStdString();
         }
 
         auto menuClick = [this, completion](std::string action){
@@ -104,6 +119,10 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
                 });
             } else if (action == "Save Preset") {
                 this->savePresetToFile();
+            } else if (action == "Add User Folder") {
+                this->addUserFolder();
+            } else if (action == "Remove User Folder") {
+                this->removeUserFolder();
             }
         };
 
@@ -119,8 +138,22 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
             }
         };
 
+        auto userPresetClick = [this, completion](int presetIdx) {
+            if (presetIdx >= 0 && presetIdx < static_cast<int>(this->userPresets.size())) {
+                auto presetName = this->userPresetNames[static_cast<size_t>(presetIdx)];
+                auto json = this->userPresets[presetName];
+                this->processorRef.loadPreset(json);
+                this->currentPresetName = presetName;
+                this->presetIndex = presetIdx;
+                this->presetFolder = "user";
+                completion(this->currentPresetName);
+            }
+        };
+
         #if JUCE_MAC
-            showNativeMacMenu(items, factoryItems, [menuClick, presetClick, factoryID](int resultID) {
+            showNativeMacMenu(items, factoryItems, userItems, userFolder,
+                this->currentPresetName.toStdString(), this->presetFolder.toStdString(), [items, menuClick, presetClick, 
+                userPresetClick, factoryID, userContentID](int resultID) {
                 if (resultID == 0) return;
 
                 if (resultID < factoryID) {
@@ -128,11 +161,33 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
                     if (it != items.end()) {
                         menuClick(it->second);
                     }
-                } else if (resultID >= factoryID) {
+                } else if (resultID >= factoryID && resultID < userContentID) {
                     int presetIdx = resultID - factoryID;
                     presetClick(presetIdx);
+                } else if (resultID >= userContentID) {
+                    int presetIdx = resultID - userContentID;
+                    userPresetClick(presetIdx);
                 }
             });
+        #elif _WIN32
+            showNativeWinMenu(items, factoryItems, userItems, userFolder,
+                this->currentPresetName.toStdString(), this->presetFolder.toStdString(),
+                [items, menuClick, presetClick, userPresetClick, factoryID, userContentID](int resultID) {
+                    if (resultID == 0) return;
+        
+                    if (resultID < factoryID) {
+                        auto it = items.find(resultID);
+                        if (it != items.end()) {
+                            menuClick(it->second);
+                        }
+                    } else if (resultID >= factoryID && resultID < userContentID) {
+                        int presetIdx = resultID - factoryID;
+                        presetClick(presetIdx);
+                    } else if (resultID >= userContentID) {
+                        int presetIdx = resultID - userContentID;
+                        userPresetClick(presetIdx);
+                    }
+                });
         #else
             juce::PopupMenu menu;
             for (const auto& [id, label] : items) {
@@ -142,10 +197,22 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
             juce::PopupMenu factoryMenu;
             for (int i = 0; i < static_cast<int>(factoryPresetNames.size()); i++) {
                 int itemID = factoryID + i;
-                factoryMenu.addItem(itemID, this->factoryPresetNames[static_cast<size_t>(i)]);
+                auto name = this->factoryPresetNames[static_cast<size_t>(i)];
+                bool isTicked = (this->presetFolder == "factory" && this->currentPresetName == name);
+                factoryMenu.addItem(itemID, this->factoryPresetNames[static_cast<size_t>(i)], true, isTicked);
             }
-
             menu.addSubMenu("Factory", factoryMenu);
+
+            if (!userFolder.empty()) {
+                juce::PopupMenu userMenu;
+                for (int i = 0; i < static_cast<int>(userPresetNames.size()); i++) {
+                    int itemID = userContentID + i;
+                    auto name = this->userPresetNames[static_cast<size_t>(i)];
+                    bool isTicked = (this->presetFolder == "user" && this->currentPresetName == name);
+                    userMenu.addItem(itemID, this->userPresetNames[static_cast<size_t>(i)], true, isTicked);
+                }
+                menu.addSubMenu(userFolder, userMenu);
+            }
 
             auto mousePos = juce::Desktop::getMousePosition();
             
@@ -154,7 +221,8 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
                 .withTargetScreenArea(juce::Rectangle<int> {mousePos.x - 60, mousePos.y - 5, 1, 1});
 
             juce::PopupMenu::dismissAllActiveMenus();
-            menu.showMenuAsync(options, [menuClick, presetClick, factoryID, completion](int resultID) {
+            menu.showMenuAsync(options, [items, menuClick, presetClick, userPresetClick, factoryID, 
+                userContentID, completion](int resultID) {
                 if (resultID == 0) return;
 
                 if (resultID < factoryID) {
@@ -163,15 +231,18 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
                         auto action = it->second;
                         menuClick(action);
                     }
-                } else if (resultID >= factoryID) {
+                } else if (resultID >= factoryID && resultID < userContentID) {
                     int presetIdx = resultID - factoryID;
                     presetClick(presetIdx);
+                } else if (resultID >= userContentID) {
+                    int presetIdx = resultID - userContentID;
+                    userPresetClick(presetIdx);
                 }
             });
         #endif
 }
 
-auto Editor::prevPreset(const juce::Array<juce::var>& args,
+auto Editor::prevPreset([[maybe_unused]] const juce::Array<juce::var>& args,
     juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
         if (this->presetFolder == "factory") {
             if (this->factoryPresetNames.empty()) return;
@@ -186,9 +257,23 @@ auto Editor::prevPreset(const juce::Array<juce::var>& args,
                 return completion(presetName);
             }
         }
+
+        if (this->presetFolder == "user") {
+            if (this->userPresetNames.empty()) return;
+            this->presetIndex = (presetIndex - 1 + static_cast<int>(userPresetNames.size())) % static_cast<int>(userPresetNames.size());
+            auto presetName = userPresetNames[static_cast<size_t>(presetIndex)];
+    
+            auto it = userPresets.find(presetName);
+            if (it != userPresets.end()) {
+                auto jsonString = it->second;
+                this->processorRef.loadPreset(jsonString);
+                this->currentPresetName = presetName;
+                return completion(presetName);
+            }
+        }
 }
 
-auto Editor::nextPreset(const juce::Array<juce::var>& args,
+auto Editor::nextPreset([[maybe_unused]] const juce::Array<juce::var>& args,
     juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
         if (this->presetFolder == "factory") {
             if (this->factoryPresetNames.empty()) return;
@@ -198,6 +283,21 @@ auto Editor::nextPreset(const juce::Array<juce::var>& args,
 
             auto it = factoryPresets.find(presetName);
             if (it != factoryPresets.end()) {
+                auto jsonString = it->second;
+                this->processorRef.loadPreset(jsonString);
+                this->currentPresetName = presetName;
+                return completion(presetName);
+            }
+        }
+
+        if (this->presetFolder == "user") {
+            if (this->userPresetNames.empty()) return;
+
+            this->presetIndex = (presetIndex + 1) % static_cast<int>(userPresetNames.size());
+            auto presetName = userPresetNames[static_cast<size_t>(presetIndex)];
+
+            auto it = userPresets.find(presetName);
+            if (it != userPresets.end()) {
                 auto jsonString = it->second;
                 this->processorRef.loadPreset(jsonString);
                 this->currentPresetName = presetName;
@@ -329,7 +429,7 @@ auto Editor::savePresetToFile() -> void {
         juce::File directory{directoryPath};
 
         auto saveDialog = std::make_shared<juce::FileChooser>(
-            "Save Preset As", directory.getChildFile(cleanName + ".json")
+            "Save Preset", directory.getChildFile(cleanName + ".json")
         );
 
         saveDialog->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles,
@@ -380,10 +480,65 @@ auto Editor::loadFactoryPresets() -> void {
         auto* obj = json.getDynamicObject();
         if (obj != nullptr) {
             auto presetName = obj->getProperty("name").toString();
-            if (presetName.isEmpty()) presetName = entry->filename;
+            if (presetName.isEmpty()) {
+                auto entryFile = juce::File::createFileWithoutCheckingPath(entry->filename);
+                presetName = entryFile.getFileNameWithoutExtension();
+            }
 
             this->factoryPresets[presetName] = content;
             this->factoryPresetNames.push_back(presetName);
+        }
+    }
+}
+
+auto Editor::addUserFolder() -> void {
+    auto directoryPath = Editor::getSettingKey("userFolder", Functions::getDownloadsFolder().getFullPathName());
+    juce::File directory{directoryPath};
+
+    auto openDialog = std::make_shared<juce::FileChooser>(
+        "Add User Folder", directory, "*.json"
+    );
+
+    openDialog->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
+        [this, openDialog](const juce::FileChooser& picker) {
+            auto folder = picker.getResult();
+            if (folder.exists() && folder.isDirectory()) {
+                Editor::setSettingKey("userFolder", folder.getFullPathName());
+                this->loadUserPresets();
+            }
+        }
+    );
+}
+
+auto Editor::removeUserFolder() -> void {
+    Editor::setSettingKey("userFolder", "");
+    this->userPresetNames.clear();
+    this->userPresets.clear();
+}
+
+auto Editor::loadUserPresets() -> void {
+    this->userPresetNames.clear();
+    this->userPresets.clear();
+
+    auto userFolder = juce::String(Editor::getSettingKey("userFolder", ""));
+    if (userFolder.isEmpty()) return;
+
+    juce::File userFolderDir{userFolder};
+    if (!userFolderDir.exists() || !userFolderDir.isDirectory()) return;
+
+    auto jsonFiles = userFolderDir.findChildFiles(juce::File::TypesOfFileToFind::findFiles, false, "*.json");
+
+    for (const auto& file : jsonFiles) {
+        auto content = file.loadFileAsString();
+        auto json = juce::JSON::parse(content);
+
+        auto* obj = json.getDynamicObject();
+        if (obj != nullptr) {
+            auto presetName = obj->getProperty("name").toString();
+            if (presetName.isEmpty()) presetName = file.getFileNameWithoutExtension();
+
+            this->userPresets[presetName] = content;
+            this->userPresetNames.push_back(presetName);
         }
     }
 }

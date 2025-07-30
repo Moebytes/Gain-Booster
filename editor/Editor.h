@@ -20,6 +20,9 @@ public:
     auto savePresetToFile() -> void;
     auto loadPresetFromFile(std::function<void()> onComplete) -> void;
     auto loadFactoryPresets() -> void;
+    auto addUserFolder() -> void;
+    auto removeUserFolder() -> void;
+    auto loadUserPresets() -> void;
 
     auto getDefaultParameter(const juce::Array<juce::var>& args, 
         juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
@@ -34,8 +37,10 @@ public:
         juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
 
     juce::String currentPresetName = "Default";
-    std::map<juce::String, juce::String, std::less<>> factoryPresets;
+    std::map<juce::String, juce::String> factoryPresets;
     std::vector<juce::String> factoryPresetNames;
+    std::map<juce::String, juce::String> userPresets;
+    std::vector<juce::String> userPresetNames;
     int presetIndex = 0;
     juce::String presetFolder = "none";
 
