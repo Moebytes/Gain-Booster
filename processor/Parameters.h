@@ -1,7 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
-#include "ParameterIDs.h"
-#include "LFO.h"
+#include "ParameterIDs.hpp"
+#include "LFO.hpp"
 
 class Parameters {
 public:

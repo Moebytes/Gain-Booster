@@ -5,7 +5,7 @@
 namespace BinaryData
 {
     extern const char*  parameters_json;
-    const int           parameters_jsonSize = 902;
+    const int           parameters_jsonSize = 626;
 
     extern const char*  presets_zip;
     const int           presets_zipSize = 6892;

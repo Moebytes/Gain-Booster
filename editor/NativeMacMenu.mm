@@ -88,8 +88,8 @@ void showNativeMacMenu(const std::map<int, std::string>& items,
     }
 
     NSPoint mouseLocation = [NSEvent mouseLocation];
-    const CGFloat estimatedMenuHeight = (items.size() + 2) * 22.0;
-    const CGFloat estimatedMenuWidth = 110.0;
+    CGFloat estimatedMenuHeight = (items.size() + 2) * 22.0;
+    CGFloat estimatedMenuWidth = 110.0;
 
     mouseLocation.y += estimatedMenuHeight;
     mouseLocation.x -= estimatedMenuWidth / 2.0;

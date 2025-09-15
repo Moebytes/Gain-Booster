@@ -1,6 +1,6 @@
 #include "Parameters.h"
-#include "DSP.h"
-#include "Functions.h"
+#include "DSP.hpp"
+#include "Functions.hpp"
 
 template<typename T>
 static auto castParameter(const juce::AudioProcessorValueTreeState& tree, 
@@ -118,9 +118,9 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
 }
 
 auto Parameters::prepareToPlay(double sampleRate) noexcept -> void {
-    const double duration = 0.001;
+    double duration = 0.001;
 
-    const auto smoothers = std::vector{
+    auto smoothers = std::vector{
         &gainSmoother,
         &boostSmoother,
         &panSmoother,
@@ -147,7 +147,7 @@ auto Parameters::reset() noexcept -> void {
         resetParameter(treeRef, param, value);
     }
     
-    const auto smoothers = std::vector{
+    auto smoothers = std::vector{
         std::pair{gainParam, &gainSmoother},
         std::pair{boostParam, &boostSmoother},
         std::pair{panParam, &panSmoother},
@@ -164,7 +164,7 @@ auto Parameters::reset() noexcept -> void {
 }
 
 auto Parameters::init() noexcept -> void {
-    const auto smoothers = std::vector{
+    auto smoothers = std::vector{
         std::pair{gainParam, &gainSmoother},
         std::pair{boostParam, &boostSmoother},
         std::pair{panParam, &panSmoother},
@@ -177,10 +177,10 @@ auto Parameters::init() noexcept -> void {
     }
 }
 
-auto Parameters::setHostInfo(double bpm, double ppq, bool hostRunning) noexcept -> void {
-    this->bpm = bpm;
-    this->ppq = ppq;
-    this->hostRunning = hostRunning;
+auto Parameters::setHostInfo(double _bpm, double _ppq, bool _hostRunning) noexcept -> void {
+    this->bpm = _bpm;
+    this->ppq = _ppq;
+    this->hostRunning = _hostRunning;
 
     if (hostRunning) {
         gainLFO.setBPM(bpm);

@@ -1,7 +1,7 @@
 #include "Processor.h"
 #include "Editor.h"
-#include "BPM.h"
-#include "Functions.h"
+#include "BPM.hpp"
+#include "Functions.hpp"
 
 Processor::Processor() : AudioProcessor(
     BusesProperties()
@@ -30,7 +30,7 @@ auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] 
     auto mainOutput = getBusBuffer(buffer, false, 0);
 
     const float* inputL = mainInput.getReadPointer(0);
-    [[maybe_unused]] const float* inputR = mainInput.getNumChannels() > 1 ? mainInput.getReadPointer(1) : inputL;
+    const float* inputR = mainInput.getNumChannels() > 1 ? mainInput.getReadPointer(1) : inputL;
 
     float* outputL = mainOutput.getWritePointer(0);
     float* outputR = mainOutput.getNumChannels() > 1 ? mainOutput.getWritePointer(1) : outputL;
@@ -53,10 +53,10 @@ auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] 
 }
 
 auto Processor::isBusesLayoutSupported(const BusesLayout& layouts) const -> bool {
-    const auto mono = juce::AudioChannelSet::mono();
-    const auto stereo = juce::AudioChannelSet::stereo();
-    const auto mainIn = layouts.getMainInputChannelSet();
-    const auto mainOut = layouts.getMainOutputChannelSet();
+    auto mono = juce::AudioChannelSet::mono();
+    auto stereo = juce::AudioChannelSet::stereo();
+    auto mainIn = layouts.getMainInputChannelSet();
+    auto mainOut = layouts.getMainOutputChannelSet();
 
     if (mainIn == mono && mainOut == mono) return true;
     if (mainIn == mono && mainOut == stereo) return true;
@@ -99,7 +99,7 @@ auto Processor::savePreset(const juce::String& name = "", const juce::String& au
     auto parameters = std::make_unique<juce::DynamicObject>();
 
     for (const auto& id : params.paramIDs.getParamStringIDs()) {
-        auto param = tree.getParameter(id);
+        auto* param = tree.getParameter(id);
         parameters->setProperty(id, param->getValue());
     }
 
@@ -150,8 +150,8 @@ auto Processor::initPreset() -> void {
 }
 
 auto Processor::getStateInformation(juce::MemoryBlock& destData) -> void {
-    auto json = savePreset();
-    destData.replaceAll(json.toUTF8(), json.getNumBytesAsUTF8());
+    auto jsonStr = savePreset();
+    destData.replaceAll(jsonStr.toUTF8(), jsonStr.getNumBytesAsUTF8());
 }
 
 auto Processor::setStateInformation(const void* data, int sizeInBytes) -> void {

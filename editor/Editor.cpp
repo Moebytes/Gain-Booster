@@ -1,6 +1,6 @@
 #include "Processor.h"
 #include "Editor.h"
-#include "Functions.h"
+#include "Functions.hpp"
 #include "BinaryData.h"
 #include "NativeMenuBridge.h"
 
@@ -9,12 +9,12 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
 
     webview.goToURL(webview.getResourceProviderRoot());
 
-    const int width = static_cast<int>(Editor::getSettingKey("windowWidth", 510));
-    const int height = static_cast<int>(Editor::getSettingKey("windowHeight", 580));
-    const float aspectRatio = static_cast<float>(width) / height;
+    int width = static_cast<int>(Editor::getSettingKey("windowWidth", 510));
+    int height = static_cast<int>(Editor::getSettingKey("windowHeight", 580));
+    float aspectRatio = static_cast<float>(width) / height;
 
-    const int minWidth = 240;
-    const int minHeight = static_cast<int>(minWidth / aspectRatio); 
+    int minWidth = 240;
+    int minHeight = static_cast<int>(minWidth / aspectRatio); 
 
     constrainer.setFixedAspectRatio(aspectRatio);
     constrainer.setMinimumSize(minWidth, minHeight);
@@ -30,8 +30,7 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
     this->loadUserPresets();
 }
 
-Editor::~Editor() {
-}
+Editor::~Editor() {}
 
 auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     return juce::WebBrowserComponent::Options{}
@@ -70,8 +69,8 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
 auto Editor::getDefaultParameter(const juce::Array<juce::var>& args,
     juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
 
-    juce::String paramID = args[0].toString();
-    auto param = processorRef.tree.getParameter(paramID);
+    auto paramID = args[0].toString();
+    auto* param = processorRef.tree.getParameter(paramID);
     float defaultValue = param->convertFrom0to1(param->getDefaultValue());
 
     completion(defaultValue);
@@ -87,7 +86,7 @@ auto Editor::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args,
             {4, "Add User Folder"}
         };
 
-        juce::String rawUserFolder = Editor::getSettingKey("userFolder", "").toString();
+        auto rawUserFolder = Editor::getSettingKey("userFolder", "").toString();
         std::string userFolder = "";
         if (!rawUserFolder.isEmpty()) {
             userFolder = juce::File{rawUserFolder}.getFileName().toStdString();
@@ -318,7 +317,7 @@ auto Editor::getWebviewFileBytes(const juce::String& resourceStr) -> std::vector
 
     auto* entry = zip.getEntry(resourceStr);
     if (entry != nullptr) {
-        const std::unique_ptr<juce::InputStream> entryStream{zip.createStreamForEntry(*entry)};
+        std::unique_ptr<juce::InputStream> entryStream{zip.createStreamForEntry(*entry)};
         if (entryStream == nullptr) {
             jassertfalse;
             return {};
@@ -329,17 +328,17 @@ auto Editor::getWebviewFileBytes(const juce::String& resourceStr) -> std::vector
 }
 
 auto Editor::getResource(const juce::String& url) -> std::optional<juce::WebBrowserComponent::Resource> {
-    static const auto fileRoot = juce::File::getCurrentWorkingDirectory().getChildFile("dist");
-    const auto resourceStr = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
-    const auto ext = resourceStr.fromLastOccurrenceOf(".", false, false);
+    static auto fileRoot = juce::File::getCurrentWorkingDirectory().getChildFile("dist");
+    auto resourceStr = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
+    auto ext = resourceStr.fromLastOccurrenceOf(".", false, false);
 
     #if WEBVIEW_DEV_MODE
-        const auto stream = fileRoot.getChildFile(resourceStr).createInputStream();
+        auto stream = fileRoot.getChildFile(resourceStr).createInputStream();
         if (stream) {
             return juce::WebBrowserComponent::Resource(Functions::streamToVector(*stream), Functions::getMimeForExtension(ext));
         }
     #else
-        const auto resource = Editor::getWebviewFileBytes(resourceStr);
+        auto resource = Editor::getWebviewFileBytes(resourceStr);
         if (!resource.empty()) {
             return juce::WebBrowserComponent::Resource(std::move(resource), Functions::getMimeForExtension(ext));
         }
@@ -374,7 +373,7 @@ auto Editor::getSettingKey(const juce::String& key, const juce::var& defaultValu
 
     if (!file.existsAsFile()) return defaultValue;
 
-    juce::var json = juce::JSON::parse(file);
+    auto json = juce::JSON::parse(file);
     if (!json.isObject()) return defaultValue;
     
     auto* obj = json.getDynamicObject();
@@ -398,7 +397,7 @@ auto Editor::loadPresetFromFile(std::function<void()> onComplete) -> void {
             auto file = picker.getResult();
             if (file.existsAsFile()) {
                 Editor::setSettingKey("loadDirectory", file.getParentDirectory().getFullPathName());
-                juce::String jsonString = file.loadFileAsString();
+                auto jsonString = file.loadFileAsString();
                 auto presetName = processorRef.loadPreset(jsonString);
 
                 this->currentPresetName = presetName;
@@ -413,7 +412,7 @@ auto Editor::loadPresetFromFile(std::function<void()> onComplete) -> void {
 auto Editor::savePresetToFile() -> void {
     auto* infoDialog = new juce::AlertWindow("Save Preset", "Preset Information:", juce::AlertWindow::NoIcon);
 
-    juce::String defaultName = this->currentPresetName;
+    auto defaultName = this->currentPresetName;
     if (defaultName == "Default") defaultName.clear();
     auto defaultAuthor = Editor::getSettingKey("saveAuthor", "").toString();
 

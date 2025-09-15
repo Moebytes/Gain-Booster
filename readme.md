@@ -36,14 +36,6 @@ Release build - `npm install` and `npm run build` should take care of it.
 Debug build - I run the project with the VSCode debugger and use `npm start` to start the frontend 
 server. You must install the AudioPluginHost from JUCE and put it in your applications folder. 
 
-Manual installation \
-Web dependencies - `npm install` \
-Web build - `rsbuild build` \
-Generate binary data for C++ - `npm run embed-binary` \
-C++ build - `mkdir build && cd build && cmake .. && make`
-
-Use `-DCMAKE_BUILD_TYPE=Debug` or `-DCMAKE_BUILD_TYPE=Release` in the CMake command depending on which you want to build.
-
 ### Credits
 
 - [JUCE](https://juce.com/)
