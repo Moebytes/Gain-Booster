@@ -94,6 +94,20 @@ public:
         return juce::String(value);
     }
 
+    static auto parseLFORate(const juce::String& text) -> float {
+        if (text.containsChar('/')) {
+            auto parts = juce::StringArray::fromTokens(text, "/", "");
+            if (parts.size() == 2) {
+                auto numerator   = parts[0].getFloatValue();
+                auto denominator = parts[1].getFloatValue();
+                if (denominator != 0.0f) {
+                    return numerator / denominator;
+                }
+            }
+        }
+        return text.getFloatValue();
+    }
+
     static auto getDownloadsFolder() -> juce::File {
         #if JUCE_WINDOWS
             PWSTR path = nullptr;

@@ -10,16 +10,14 @@ Processor::Processor() : AudioProcessor(
     ), params(tree) {
 }
 
-Processor::~Processor() {
-}
+Processor::~Processor() {}
 
 auto Processor::prepareToPlay(double sampleRate, [[maybe_unused]] int samplesPerBlock) -> void {
     params.prepareToPlay(sampleRate);
     params.reset();
 }
 
-auto Processor::releaseResources() -> void {
-}
+auto Processor::releaseResources() -> void {}
 
 auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] juce::MidiBuffer& midiMessages) -> void {
     juce::ScopedNoDenormals noDenormals;
@@ -72,8 +70,7 @@ auto Processor::getCurrentProgram() -> int {
     return 0;
 }
 
-auto Processor::setCurrentProgram([[maybe_unused]] int index) -> void {
-}
+auto Processor::setCurrentProgram([[maybe_unused]] int index) -> void {}
 
 auto Processor::getProgramName([[maybe_unused]] int index) -> const juce::String {
     return {};
@@ -100,16 +97,14 @@ auto Processor::savePreset(const juce::String& name = "", const juce::String& au
 
     for (const auto& id : params.paramIDs.getParamStringIDs()) {
         auto* param = tree.getParameter(id);
-        parameters->setProperty(id, param->getValue());
+
+        if (id.containsIgnoreCase("LFORate") || id.containsIgnoreCase("LFOType")) {
+            parameters->setProperty(id, param->getCurrentValueAsText());
+        } else {
+            parameters->setProperty(id, param->getValue());
+        }
     }
 
-    juce::var parameterVar{parameters.get()};
-    auto paramString = juce::JSON::toString(parameterVar);
-
-    juce::MD5 md5{paramString.toUTF8()};
-    auto hash = md5.toHexString();
-    
-    obj->setProperty("hash", hash);
     obj->setProperty("parameters", juce::var(parameters.release()));
     auto json = juce::var{obj.release()};
 
@@ -134,8 +129,13 @@ auto Processor::loadPreset(const juce::String& jsonStr) -> juce::String {
     for (const auto& property : paramObj->getProperties()) {
         auto id = property.name.toString();
         auto* param = tree.getParameter(id);
-        if (param != nullptr) {
-            param->setValueNotifyingHost(property.value);
+        if (param) {
+            if ((id.containsIgnoreCase("LFORate") || id.containsIgnoreCase("LFOType")) && property.value.isString()) {
+                auto value = param->getValueForText(property.value.toString());
+                param->setValueNotifyingHost(value);
+            } else {
+                param->setValueNotifyingHost(property.value);
+            }
         }
     }
 

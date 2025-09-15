@@ -1,6 +1,6 @@
 {
   "name": "gain-booster",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Gain VST plugin",
   "main": "dist/index.js",
   "scripts": {

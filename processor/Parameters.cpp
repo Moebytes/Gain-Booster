@@ -93,6 +93,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         paramIDs.gainLFORate, "Gain LFO Rate", juce::NormalisableRange<float>{0.03125f, 4.0f, 0.0001f}, 0.25f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayLFORate)
+        .withValueFromStringFunction(Functions::parseLFORate)
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -107,6 +108,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         paramIDs.panLFORate, "Pan LFO Rate", juce::NormalisableRange<float>{0.03125f, 4.0f, 0.0001f}, 0.25f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayLFORate)
+        .withValueFromStringFunction(Functions::parseLFORate)
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(

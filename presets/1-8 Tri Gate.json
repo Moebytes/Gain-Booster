@@ -1,11 +1,10 @@
 {
   "plugin": "Gain Booster",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "name": "1/8 Tri Gate",
   "author": "Moebytes",
-  "modified": "2025-07-29T22:13:01.113-04:00",
+  "modified": "2025-09-15T04:50:02.953-04:00",
   "presetFormat": 1,
-  "hash": "195927868d6004444677cf53f84a1537",
   "parameters": {
     "gain": 1.0,
     "gainCurve": 0.5,
@@ -13,11 +12,11 @@
     "boostCurve": 0.5,
     "pan": 0.5,
     "panningLaw": 0.5,
-    "gainLFOType": 0.666666686534882,
-    "gainLFORate": 0.02363464422524,
+    "gainLFOType": "triangle",
+    "gainLFORate": "1/8",
     "gainLFOAmount": 1.0,
-    "panLFOType": 0.666666686534882,
-    "panLFORate": 0.055130708962679,
+    "panLFOType": "triangle",
+    "panLFORate": "1/4",
     "panLFOAmount": 0.0
   }
 }
