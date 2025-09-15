@@ -98,7 +98,8 @@ auto Processor::savePreset(const juce::String& name = "", const juce::String& au
     for (const auto& id : params.paramIDs.getParamStringIDs()) {
         auto* param = tree.getParameter(id);
 
-        if (id.containsIgnoreCase("LFORate") || id.containsIgnoreCase("LFOType")) {
+        if (id.containsIgnoreCase("curve") || id.containsIgnoreCase("panningLaw") || 
+            id.containsIgnoreCase("LFORate") || id.containsIgnoreCase("LFOType")) {
             parameters->setProperty(id, param->getCurrentValueAsText());
         } else {
             parameters->setProperty(id, param->getValue());
@@ -130,7 +131,8 @@ auto Processor::loadPreset(const juce::String& jsonStr) -> juce::String {
         auto id = property.name.toString();
         auto* param = tree.getParameter(id);
         if (param) {
-            if ((id.containsIgnoreCase("LFORate") || id.containsIgnoreCase("LFOType")) && property.value.isString()) {
+            if ((id.containsIgnoreCase("curve") || id.containsIgnoreCase("panningLaw") || 
+                id.containsIgnoreCase("LFORate") || id.containsIgnoreCase("LFOType")) && property.value.isString()) {
                 auto value = param->getValueForText(property.value.toString());
                 param->setValueNotifyingHost(value);
             } else {
