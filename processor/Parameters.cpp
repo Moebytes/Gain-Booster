@@ -119,7 +119,19 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     return layout;
 }
 
-auto Parameters::prepareToPlay(double sampleRate) noexcept -> void {
+auto Parameters::getDefaultParameter(const juce::Array<juce::var>& args,
+    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+
+    auto paramID = args[0].toString();
+    auto* param = this->treeRef.getParameter(paramID);
+    float defaultValue = param->convertFrom0to1(param->getDefaultValue());
+
+    completion(defaultValue);
+}
+
+auto Parameters::prepareToPlay(double _sampleRate, int _blockSize) noexcept -> void {
+    this->sampleRate = _sampleRate;
+    this->blockSize = _blockSize;
     double duration = 0.001;
 
     auto smoothers = std::vector{
@@ -131,11 +143,11 @@ auto Parameters::prepareToPlay(double sampleRate) noexcept -> void {
     };
 
     for (const auto& smoother : smoothers) {
-        smoother->reset(sampleRate, duration);
+        smoother->reset(this->sampleRate, duration);
     }
 
-    gainLFO.prepareToPlay(sampleRate);
-    panLFO.prepareToPlay(sampleRate);
+    this->gainLFO.prepareToPlay(this->sampleRate);
+    this->panLFO.prepareToPlay(this->sampleRate);
 }
 
 auto Parameters::reset() noexcept -> void {
@@ -161,11 +173,31 @@ auto Parameters::reset() noexcept -> void {
         smoother->setCurrentAndTargetValue(param->get());
     }
 
-    gainLFO.reset();
-    panLFO.reset();
+    this->gainLFO.reset();
+    this->panLFO.reset();
 }
 
-auto Parameters::init() noexcept -> void {
+auto Parameters::setHostInfo(double _bpm, double _ppq, const juce::AudioPlayHead::TimeSignature& _timeSignature, bool isPlaying) noexcept -> void {
+    this->bpm = _bpm;
+    this->ppq = _ppq;
+    this->timeSignature = _timeSignature;
+
+    if (_ppq > 0.0) {
+        this->ppq = _ppq;
+        this->internalPPQ = _ppq;
+    } else {
+        double ppqPerSample = (this->bpm / 60.0) / this->sampleRate;
+        this->internalPPQ += ppqPerSample * this->blockSize; 
+        this->ppq = this->internalPPQ;
+    }
+
+    this->gainLFO.setBPM(this->bpm);
+    this->panLFO.setBPM(this->bpm);
+    this->gainLFO.syncToHost(this->ppq);
+    this->panLFO.syncToHost(this->ppq);
+}
+
+auto Parameters::blockUpdate() noexcept -> void {
     auto smoothers = std::vector{
         std::pair{gainParam, &gainSmoother},
         std::pair{boostParam, &boostSmoother},
@@ -177,56 +209,33 @@ auto Parameters::init() noexcept -> void {
     for (const auto& [param, smoother] : smoothers) {
         smoother->setTargetValue(param->get());
     }
-}
 
-auto Parameters::setHostInfo(double _bpm, double _ppq, bool _hostRunning) noexcept -> void {
-    this->bpm = _bpm;
-    this->ppq = _ppq;
-    this->hostRunning = _hostRunning;
+    this->gainLFO.setType(this->gainLFOTypeParam->getCurrentChoiceName());
+    this->panLFO.setType(this->panLFOTypeParam->getCurrentChoiceName());
 
-    if (hostRunning) {
-        gainLFO.setBPM(bpm);
-        panLFO.setBPM(bpm);
-        gainLFO.syncFromHost(ppq);
-        panLFO.syncFromHost(ppq);
-    }
+    float gainLFOSyncedTime = this->gainLFORateParam->get();
+    float panLFOSyncedTime = this->panLFORateParam->get();
+
+    this->gainLFO.setSyncedRate(gainLFOSyncedTime, this->timeSignature);
+    this->panLFO.setSyncedRate(panLFOSyncedTime, this->timeSignature);
 }
 
 auto Parameters::update() noexcept -> void {
-    gainLFO.setType(gainLFOTypeParam->getCurrentChoiceName());
-    panLFO.setType(panLFOTypeParam->getCurrentChoiceName());
-
-    float gainLFOSyncedTime = gainLFORateParam->get();
-    float panLFOSyncedTime = panLFORateParam->get();
-
-    if (hostRunning) {
-        gainLFO.setSyncedRate(gainLFOSyncedTime);
-        panLFO.setSyncedRate(panLFOSyncedTime);
-    } else {
-        gainLFO.setHzRate(static_cast<float>(bpm / 60.0 / gainLFOSyncedTime));
-        panLFO.setHzRate(static_cast<float>(bpm / 60.0 / panLFOSyncedTime));
-    }
-
-    float gainLFOValue = gainLFO.getSample();
-    float panLFOValue = panLFO.getSample();
-
-    float gainLFOAmount = gainLFOAmountSmoother.getNextValue();
-    float panLFOAmount = panLFOAmountSmoother.getNextValue();
-
-    const auto& gainCurve = gainCurveParam->getCurrentChoiceName();
-    gain = gainSmoother.getNextValue();
+    const auto& gainCurve = this->gainCurveParam->getCurrentChoiceName();
+    this->gain = gainSmoother.getNextValue();
 
     if (gainCurve == "logarithmic") {
-        gain = std::pow(gain, 0.5f);
+        this->gain = std::pow(this->gain, 0.5f);
     } else if (gainCurve == "exponential") {
-        gain = std::pow(gain, 2.0f);
+        this->gain = std::pow(this->gain, 2.0f);
     }
 
-    gain *= juce::jmap(gainLFOValue, -1.0f, 1.0f, 1.0f - gainLFOAmount, 1.0f);
+    float gainLFOValue = this->gainLFO.getSample();
+    float gainLFOAmount = this->gainLFOAmountSmoother.getNextValue();
+    this->gain *= juce::jmap(gainLFOValue, -1.0f, 1.0f, 1.0f - gainLFOAmount, 1.0f);
 
-    const auto& boostCurve = boostCurveParam->getCurrentChoiceName();
-
-    float boostdB = boostSmoother.getNextValue();
+    const auto& boostCurve = this->boostCurveParam->getCurrentChoiceName();
+    float boostdB = this->boostSmoother.getNextValue();
 
     if (boostCurve == "logarithmic") {
         boostdB = std::pow(boostdB / 12.0f, 0.5f) * 12.0f;
@@ -234,17 +243,20 @@ auto Parameters::update() noexcept -> void {
         boostdB = std::pow(boostdB / 12.0f, 2.0f) * 12.0f;
     }
 
-    boost = juce::Decibels::decibelsToGain(boostdB);
+    this->boost = juce::Decibels::decibelsToGain(boostdB);
 
     const auto& panningLaw = panningLawParam->getCurrentChoiceName();
-    pan = panSmoother.getNextValue();
-    pan = juce::jlimit(-1.0f, 1.0f, pan + panLFOValue * panLFOAmount * 0.5f);
+    this->pan = this->panSmoother.getNextValue();
+
+    float panLFOValue = this->panLFO.getSample();
+    float panLFOAmount = this->panLFOAmountSmoother.getNextValue();
+    this->pan = juce::jlimit(-1.0f, 1.0f, this->pan + panLFOValue * panLFOAmount * 0.5f);
 
     if (panningLaw == "triangle") {
-        trianglePanning(pan, panL, panR);
+        DSP::trianglePanning(this->pan, this->panL, this->panR);
     } else if (panningLaw == "linear") {
-        linearPanning(pan, panL, panR);
+        DSP::linearPanning(this->pan, this->panL, this->panR);
     } else {
-        constantPowerPanning(pan, panL, panR);
+        DSP::constantPowerPanning(this->pan, this->panL, this->panR);
     }
 }

@@ -10,11 +10,15 @@ public:
 
     static auto createParameterLayout() -> juce::AudioProcessorValueTreeState::ParameterLayout;
 
-    auto prepareToPlay(double sampleRate) noexcept -> void;
+    auto prepareToPlay(double sampleRate, int blockSize) noexcept -> void;
     auto reset() noexcept -> void;
     auto init() noexcept -> void;
+    auto blockUpdate() noexcept -> void;
     auto update() noexcept -> void;
-    auto setHostInfo(double bpm, double ppq, bool hostRunning) noexcept -> void;
+    auto setHostInfo(double bpm, double ppq, const juce::AudioPlayHead::TimeSignature& timeSignature, bool isPlaying) noexcept -> void;
+
+    auto getDefaultParameter(const juce::Array<juce::var>& args, 
+        juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
 
     static ParameterIDs paramIDs;
 
@@ -51,9 +55,12 @@ private:
 
     LFO gainLFO;
     LFO panLFO;
-    double bpm = 120.0;
+    double sampleRate = 44100.0;
+    int blockSize = 512;
+    double bpm = 150.0;
     double ppq = 0.0;
-    bool hostRunning = false;
+    double internalPPQ = 0.0;
+    juce::AudioPlayHead::TimeSignature timeSignature{4, 4};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Parameters)
 };

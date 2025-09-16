@@ -7,84 +7,81 @@ public:
     LFO() = default;
     virtual ~LFO() = default;
 
-    auto prepareToPlay(double newSampleRate) -> void {
-        sampleRate = newSampleRate;
+    auto prepareToPlay(double _sampleRate) -> void {
+        this->sampleRate = _sampleRate;
         reset();
     }
 
     auto reset() -> void {
-        phase = 0.0f;
+        this->phase = 0.0f;
     }
 
-    auto setType(const juce::String& newType) -> void {
-        type = newType.toLowerCase();
+    auto setType(const juce::String& _type) -> void {
+        this->type = _type.toLowerCase();
     }
 
-    auto setHzRate(float newFrequencyHz) -> void {
-        frequencyHz = newFrequencyHz * 0.5f;
-        phaseIncrement = frequencyHz / static_cast<float>(sampleRate);
-        syncedToHost = false;
+    auto setBPM(double _bpm) -> void {
+        this->bpm = _bpm;
     }
 
-    auto setSyncedRate(float syncedRate) -> void {
-        syncedBeatsPerCycle = syncedRate * 0.5f;
-        syncedToHost = true;
-
-        double secondsPerBeat = 60.0f / bpm;
-        double samplesPerCycle = syncedBeatsPerCycle * static_cast<float>(sampleRate) * secondsPerBeat;
-        syncedPhaseIncrement = 1.0f / static_cast<float>(samplesPerCycle);
+    auto setHzRate(float _frequencyHz) -> void {
+        this->frequencyHz = _frequencyHz;
+        this->phaseIncrement = this->frequencyHz / static_cast<float>(this->sampleRate);
     }
 
-    auto setBPM(double newBPM) -> void {
-        bpm = newBPM;
-        if (syncedToHost) {
-            setSyncedRate(syncedBeatsPerCycle);
+    auto setSyncedRate(float noteLength, const juce::AudioPlayHead::TimeSignature& timeSignature) -> void {
+        float timeScale = static_cast<float>(timeSignature.numerator) / static_cast<float>(timeSignature.denominator);
+        this->beatsPerCycle = static_cast<float>(noteLength) * 4.0f * timeScale;
+
+        double secondsPerBeat = 60.0 / this->bpm;
+        double samplesPerCycle = this->beatsPerCycle * secondsPerBeat * this->sampleRate;
+        this->phaseIncrement = 1.0f / static_cast<float>(samplesPerCycle);
+    }
+
+    auto syncToHost(double ppq) -> void {
+        if (this->retrigger) {
+            double fractionalCycle = std::fmod(ppq / this->beatsPerCycle, 1.0);
+            this->phase = static_cast<float>(fractionalCycle);
         }
     }
 
-    auto syncFromHost(double ppq) -> void {
-        double beatsIntoCycle = std::fmod(ppq, syncedBeatsPerCycle);
-        phase = static_cast<float>(beatsIntoCycle / syncedBeatsPerCycle);
-    }
-
     auto getSample() -> float {
-        float value = renderWaveform(phase);
+        float value = renderWaveform(this->phase);
+        if (this->phaseInvert) value *= -1;
 
-        phase += syncedToHost ? syncedPhaseIncrement : phaseIncrement;
-        if (phase >= 1.0f) {
-            phase -= 1.0f;
+        if (!this->retrigger) {
+            this->phase += this->phaseIncrement;
+            if (this->phase >= 1.0f) this->phase -= 1.0f;
         }
 
         return value;
     }
 
     auto renderWaveform(float pos) -> float {
-        float value = 0.0f;
-
-        if (type == "sine") {
-            value = std::sin(pos * juce::MathConstants<float>::twoPi);
-        } else if (type == "triangle") {
-            value = 4.0f * std::abs(pos - 0.5f) - 1.0f;
-        } else if (type == "square") {
-            value = (pos < 0.5f) ? 1.0f : -1.0f;
-        } else if (type == "saw") {
-            value = 2.0f * pos - 1.0f;
+        if (this->type == "sine") {
+            return std::sin(pos * juce::MathConstants<float>::twoPi);
+        } else if (this->type == "triangle") {
+            return 4.0f * std::abs(pos - 0.5f) - 1.0f;
+        } else if (this->type == "square") {
+            return (pos < 0.5f) ? 1.0f : -1.0f;
+        } else if (this->type == "saw") {
+            return 2.0f * pos - 1.0f;
         }
 
-        return value;
+        return 0.0f;
     }
 
 private:
-    juce::String type{"square"};
+    juce::String type = "square";
 
     double sampleRate = 44100.0;
     double bpm = 150.0;
 
     float frequencyHz = 1.0f;
     float phaseIncrement = 0.0f;
-    float syncedPhaseIncrement = 0.0f;
-
+    float beatsPerCycle = 1.0f;
     float phase = 0.0f;
-    bool syncedToHost = false;
-    float syncedBeatsPerCycle = 1.0f;
+
+    bool retrigger = true;
+    bool phaseInvert = true;
 };

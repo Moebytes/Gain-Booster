@@ -2,14 +2,14 @@
 #include <JuceHeader.h>
 #include "BinaryData.h"
 
-struct ParameterIDs {
+class ParameterIDs {
+public:
     juce::ParameterID gain;
     juce::ParameterID gainCurve;
     juce::ParameterID boost;
     juce::ParameterID boostCurve;
     juce::ParameterID pan;
     juce::ParameterID panningLaw;
-
     juce::ParameterID gainLFOType;
     juce::ParameterID gainLFORate;
     juce::ParameterID gainLFOAmount;
@@ -17,16 +17,22 @@ struct ParameterIDs {
     juce::ParameterID panLFORate;
     juce::ParameterID panLFOAmount;
 
+    static inline juce::var parsedJSON;
+
+    static auto getJSON() -> juce::DynamicObject* {
+        if (!ParameterIDs::parsedJSON) {
+            auto jsonStr = juce::String::fromUTF8(BinaryData::parameters_json, BinaryData::parameters_jsonSize);
+            ParameterIDs::parsedJSON = juce::JSON::parse(jsonStr);
+        }
+        return ParameterIDs::parsedJSON.getDynamicObject();
+    }
+
     static auto loadFromJSON() -> ParameterIDs {
         ParameterIDs parameterIDs;
 
-        auto jsonStr = juce::String::fromUTF8(BinaryData::parameters_json, BinaryData::parameters_jsonSize);
+        auto* json = ParameterIDs::getJSON();
 
-        auto parsed = juce::JSON::parse(jsonStr);
-        auto* json = parsed.getDynamicObject();
-        jassert(json != nullptr);
-
-        auto getParameter = [json](const juce::String& key) -> juce::ParameterID {
+        auto getParameter = [&json](const juce::String& key) -> juce::ParameterID {
             auto value = json->getProperty(key);
             auto* obj = value.getDynamicObject();
             jassert(obj != nullptr);
@@ -54,13 +60,8 @@ struct ParameterIDs {
         return parameterIDs;
     }
 
-    [[nodiscard]] auto getParamStringIDs() const -> std::vector<juce::String> {
-        auto jsonStr = juce::String::fromUTF8(BinaryData::parameters_json, BinaryData::parameters_jsonSize);
-
-        auto parsed = juce::JSON::parse(jsonStr);
-        auto* json = parsed.getDynamicObject();
-        jassert(json != nullptr);
-
+    static auto getStringKeys() -> std::vector<juce::String> {
+        auto* json = ParameterIDs::getJSON();
         std::vector<juce::String> keys;
         keys.reserve(static_cast<size_t>(json->getProperties().size()));
 
@@ -69,5 +70,17 @@ struct ParameterIDs {
         }
 
         return keys;
+    }
+
+    static auto isStringValue(const juce::String& key) -> bool {
+        auto* json = ParameterIDs::getJSON();
+        if (json->hasProperty(key)) {
+            auto* paramDef = json->getProperty(key).getDynamicObject();
+            if (paramDef->hasProperty("stringValue") && paramDef->getProperty("stringValue")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 };

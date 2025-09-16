@@ -128,9 +128,15 @@ const LFOBarRate: React.FunctionComponent<LFORateProps & WithJUCESliderProps> = 
     }, [])
 
     useEffect(() => {
-        console.log(numerator / denominator)
         onChange(numerator / denominator)
     }, [numerator, denominator])
+
+    useEffect(() => {
+        const fraction = functions.getFraction(value, allowedNumerators, allowedDenominators)
+        setNumerator(fraction.numerator)
+        setDenominator(fraction.denominator)
+        onChange(fraction.numerator / fraction.denominator)
+    }, [value])
 
     return (
         <div className="lfobar-rate">

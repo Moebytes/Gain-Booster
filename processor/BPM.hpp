@@ -1,22 +1,26 @@
 #pragma once
 #include <JuceHeader.h>
 
+using TimeSignature = juce::AudioPlayHead::TimeSignature;
+
 class BPM {
 public:
-    static auto getBPMAndPPQ(const juce::AudioPlayHead* playhead) noexcept -> std::tuple<double, double, bool> {
+    static auto getHostInfo(const juce::AudioPlayHead* playhead) noexcept -> std::tuple<double, double, TimeSignature, bool> {
         double bpm = 150.0;
         double ppq = 0.0;
-        bool hostRunning = false;
+        TimeSignature timeSignature{4, 4};
+        bool isPlaying = false;
 
         if (playhead != nullptr) {
-            juce::AudioPlayHead::PositionInfo posInfo;
+            juce::AudioPlayHead::PositionInfo info;
             if (playhead->getPosition()) {
-                bpm = posInfo.getBpm().orFallback(150.0);
-                ppq = posInfo.getPpqPosition().orFallback(0.0);
-                hostRunning = posInfo.getIsPlaying();
+                bpm = info.getBpm().orFallback(150.0);
+                ppq = info.getPpqPosition().orFallback(0.0);
+                timeSignature = info.getTimeSignature().orFallback(TimeSignature{4, 4});
+                isPlaying = info.getIsPlaying();
             }
         }
 
-        return {bpm, ppq, hostRunning};
+        return {bpm, ppq, timeSignature, isPlaying};
     }
 };

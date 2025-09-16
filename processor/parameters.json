@@ -1,14 +1,14 @@
 {
     "gain": {"id": "gain", "version": 1},
-    "gainCurve": {"id": "gainCurve", "version": 1},
+    "gainCurve": {"id": "gainCurve", "version": 1, "stringValue": true},
     "boost": {"id": "boost", "version": 1},
-    "boostCurve": {"id": "boostCurve", "version": 1},
+    "boostCurve": {"id": "boostCurve", "version": 1, "stringValue": true},
     "pan": {"id": "pan", "version": 1},
-    "panningLaw": {"id": "panningLaw", "version": 1},
-    "gainLFOType": {"id": "gainLFOType", "version": 1},
-    "gainLFORate": {"id": "gainLFORate", "version": 1},
+    "panningLaw": {"id": "panningLaw", "version": 1, "stringValue": true},
+    "gainLFOType": {"id": "gainLFOType", "version": 1, "stringValue": true},
+    "gainLFORate": {"id": "gainLFORate", "version": 1, "stringValue": true},
     "gainLFOAmount": {"id": "gainLFOAmount", "version": 1},
-    "panLFOType": {"id": "panLFOType", "version": 1},
-    "panLFORate": {"id": "panLFORate", "version": 1},
+    "panLFOType": {"id": "panLFOType", "version": 1, "stringValue": true},
+    "panLFORate": {"id": "panLFORate", "version": 1, "stringValue": true},
     "panLFOAmount": {"id": "panLFOAmount", "version": 1}
 }

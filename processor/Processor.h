@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Parameters.h"
+#include "PresetManager.h"
 
 class Processor : public juce::AudioProcessor {
 public:
@@ -27,10 +28,6 @@ public:
   auto getProgramName(int index) -> const juce::String override;
   auto changeProgramName(int index, const juce::String& newName) -> void override;
 
-  auto savePreset(const juce::String& name, const juce::String& author) -> juce::String;
-  auto loadPreset(const juce::String& jsonStr) -> juce::String;
-  auto initPreset() -> void;
-
   auto getStateInformation(juce::MemoryBlock& destData) -> void override;
   auto setStateInformation(const void* data, int sizeInBytes) -> void override;
 
@@ -38,7 +35,8 @@ public:
     *this, nullptr, "Parameters", Parameters::createParameterLayout()
   };
 
-  Parameters params;
+  Parameters parameters;
+  PresetManager presetManager;
 
 private:
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Processor)
