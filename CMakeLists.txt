@@ -101,6 +101,15 @@ file(
     FORMAT zip VERBOSE
 )
 
+add_library(disable_shadow_warnings INTERFACE)
+add_library(utils::disable_shadow_warnings ALIAS disable_shadow_warnings)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(disable_shadow_warnings INTERFACE -Wno-shadow)
+elseif(MSVC)
+    target_compile_options(disable_shadow_warnings INTERFACE /wd4456 /wd4457)
+endif()
+
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         juce::juce_audio_utils
@@ -109,4 +118,5 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags)
+        juce::juce_recommended_warning_flags
+        utils::disable_shadow_warnings)

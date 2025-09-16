@@ -5,7 +5,7 @@
 #include "EventEmitter.hpp"
 #include "NativeMenuBridge.h"
 
-PresetManager::PresetManager(juce::AudioProcessorValueTreeState& tree) : treeRef(tree) {
+PresetManager::PresetManager(juce::AudioProcessorValueTreeState& tree) : tree(tree) {
     this->loadFactoryPresets();
     this->loadUserPresets();
 }
@@ -410,7 +410,7 @@ auto PresetManager::savePreset(const juce::String& name, const juce::String& aut
     auto parameters = std::make_unique<juce::DynamicObject>();
 
     for (const auto& id : ParameterIDs::getStringKeys()) {
-        auto* param = this->treeRef.getParameter(id);
+        auto* param = this->tree.getParameter(id);
 
         if (param) {
             parameters->setProperty(id, param->getCurrentValueAsText());
@@ -440,7 +440,7 @@ auto PresetManager::loadPreset(const juce::String& jsonStr) -> juce::String {
 
     for (const auto& property : paramObj->getProperties()) {
         auto id = property.name.toString();
-        auto* param = this->treeRef.getParameter(id);
+        auto* param = this->tree.getParameter(id);
 
         float value = param->getValueForText(property.value.toString());
         param->setValueNotifyingHost(value);
@@ -451,7 +451,7 @@ auto PresetManager::loadPreset(const juce::String& jsonStr) -> juce::String {
 
 auto PresetManager::initPreset() -> void {
     for (const auto& id : ParameterIDs::getStringKeys()) {
-        auto* param = this->treeRef.getParameter(id);
+        auto* param = this->tree.getParameter(id);
         param->setValueNotifyingHost(param->getDefaultValue());
     }
 }

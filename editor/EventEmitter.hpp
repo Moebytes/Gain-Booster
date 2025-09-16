@@ -13,13 +13,13 @@ public:
         return emitter;
     }
 
-    auto addListener(Listener* listener) -> void { listeners.add(listener); }
-    auto removeListener(Listener* listener) -> void { listeners.remove(listener); }
+    auto addListener(Listener* listener) -> void { this->listeners.add(listener); }
+    auto removeListener(Listener* listener) -> void { this->listeners.remove(listener); }
 
     auto emitEvent(const juce::String& name, const juce::var& payload) -> void {
-        const juce::ScopedLock scopedLock{lock};
-        pendingEvents.add({name, payload});
-        triggerAsyncUpdate();
+        const juce::ScopedLock scopedLock{this->lock};
+        this->pendingEvents.add({name, payload});
+        this->triggerAsyncUpdate();
     }
 
 private:
@@ -35,12 +35,12 @@ private:
     EventEmitter() = default;
 
     auto handleAsyncUpdate() -> void override {
-        const juce::ScopedLock scopedLock{lock};
+        const juce::ScopedLock scopedLock{this->lock};
         juce::Array<EventData> eventArray;
-        eventArray.swapWith(pendingEvents);
+        eventArray.swapWith(this->pendingEvents);
 
         for (auto& event : eventArray) {
-            listeners.call([&](Listener& listener) { listener.handleEvent(event.name, event.payload); });
+            this->listeners.call([&](Listener& listener) { listener.handleEvent(event.name, event.payload); });
         }
     }
 

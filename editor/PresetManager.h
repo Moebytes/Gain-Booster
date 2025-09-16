@@ -35,7 +35,7 @@ public:
     juce::String presetFolder = "none";
 
 private:
-    juce::AudioProcessorValueTreeState& treeRef;
+    juce::AudioProcessorValueTreeState& tree;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PresetManager)
 };

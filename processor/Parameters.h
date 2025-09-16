@@ -45,7 +45,7 @@ public:
     juce::AudioParameterFloat*  panLFOAmountParam;
 
 private:
-    juce::AudioProcessorValueTreeState& treeRef;
+    juce::AudioProcessorValueTreeState& tree;
     
     juce::LinearSmoothedValue<float> gainSmoother;
     juce::LinearSmoothedValue<float> boostSmoother;

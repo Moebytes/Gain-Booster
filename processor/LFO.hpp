@@ -9,8 +9,8 @@ public:
     LFO() = default;
     virtual ~LFO() = default;
 
-    auto prepareToPlay(double _sampleRate) -> void {
-        this->sampleRate = _sampleRate;
+    auto prepareToPlay(double sampleRate) -> void {
+        this->sampleRate = sampleRate;
         reset();
     }
 
@@ -18,12 +18,12 @@ public:
         this->phase = 0.0f;
     }
 
-    auto setType(const juce::String& _type) -> void {
-        this->type = _type.toLowerCase();
+    auto setType(const juce::String& type) -> void {
+        this->type = type.toLowerCase();
     }
 
-    auto setHzRate(float _frequency) -> void {
-        this->frequency = _frequency;
+    auto setHzRate(float frequency) -> void {
+        this->frequency = frequency;
         this->increment = this->frequency / static_cast<float>(this->sampleRate);
     }
 
@@ -36,9 +36,9 @@ public:
         this->increment = 1.0f / static_cast<float>(syncedSamples);
     }
 
-    auto syncToHost(double _bpm, double ppq, const TimeSignature& _timeSignature) -> void {
-        this->bpm = _bpm;
-        this->timeSignature = _timeSignature;
+    auto syncToHost(double bpm, double ppq, const TimeSignature& timeSignature) -> void {
+        this->bpm = bpm;
+        this->timeSignature = timeSignature;
 
         if (this->retrigger) {
             double position = std::fmod(ppq, this->syncedBeats);

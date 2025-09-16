@@ -4,7 +4,7 @@
 #include "Settings.hpp"
 #include "BinaryData.h"
 
-Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
+Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processor(p),
     webview(webviewOptions()) {
 
     webview.goToURL(webview.getResourceProviderRoot());
@@ -54,19 +54,19 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     .withOptionsFrom(panLFORateRelay)
     .withOptionsFrom(panLFOAmountRelay)
     .withNativeFunction("getDefaultParameter", [this](auto args, auto completion){ 
-        return this->processorRef.parameters.getDefaultParameter(args, completion); 
+        return this->processor.parameters.getDefaultParameter(args, completion); 
     })
     .withNativeFunction("openPresetMenu", [this](auto args, auto completion){ 
-        return this->processorRef.presetManager.openPresetMenu(args, completion); 
+        return this->processor.presetManager.openPresetMenu(args, completion); 
     })
     .withNativeFunction("prevPreset", [this](auto args, auto completion){ 
-        return this->processorRef.presetManager.prevPreset(args, completion); 
+        return this->processor.presetManager.prevPreset(args, completion); 
     })
     .withNativeFunction("nextPreset", [this](auto args, auto completion){ 
-        return this->processorRef.presetManager.nextPreset(args, completion); 
+        return this->processor.presetManager.nextPreset(args, completion); 
     })
     .withNativeFunction("currentPresetName", [this]([[maybe_unused]] auto args, auto completion){ 
-        return completion(this->processorRef.presetManager.currentPresetName);
+        return completion(this->processor.presetManager.currentPresetName);
     });
 }
 

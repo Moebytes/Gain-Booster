@@ -25,7 +25,7 @@ static auto resetParameter(const juce::AudioProcessorValueTreeState& tree,
 
 ParameterIDs Parameters::paramIDs = ParameterIDs::loadFromJSON();
 
-Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : treeRef(tree) {
+Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : tree(tree) {
     using FloatPair = std::pair<juce::AudioParameterFloat*&, const juce::ParameterID*>;
     using ChoicePair = std::pair<juce::AudioParameterChoice*&, const juce::ParameterID*>;
 
@@ -48,11 +48,11 @@ Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : treeRef(tree)
     };
 
     for (auto& [param, paramID] : floatParameters) {
-        castParameter(treeRef, paramID, param);
+        castParameter(tree, paramID, param);
     }
 
     for (auto& [param, paramID] : choiceParameters) {
-        castParameter(treeRef, paramID, param);
+        castParameter(tree, paramID, param);
     }
 }
 
@@ -128,15 +128,15 @@ auto Parameters::getDefaultParameter(const juce::Array<juce::var>& args,
     juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
 
     auto paramID = args[0].toString();
-    auto* param = this->treeRef.getParameter(paramID);
+    auto* param = this->tree.getParameter(paramID);
     float defaultValue = param->convertFrom0to1(param->getDefaultValue());
 
     completion(defaultValue);
 }
 
-auto Parameters::prepareToPlay(double _sampleRate, int _blockSize) noexcept -> void {
-    this->sampleRate = _sampleRate;
-    this->blockSize = _blockSize;
+auto Parameters::prepareToPlay(double sampleRate, int blockSize) noexcept -> void {
+    this->sampleRate = sampleRate;
+    this->blockSize = blockSize;
     double duration = 0.001;
 
     auto smoothers = std::vector{
@@ -163,7 +163,7 @@ auto Parameters::reset() noexcept -> void {
     };
 
     for (auto& [param, value] : paramFloats) {
-        resetParameter(treeRef, param, value);
+        resetParameter(tree, param, value);
     }
     
     auto smoothers = std::vector{
@@ -182,14 +182,14 @@ auto Parameters::reset() noexcept -> void {
     this->panLFO.reset();
 }
 
-auto Parameters::setHostInfo(double _bpm, double _ppq, const juce::AudioPlayHead::TimeSignature& _timeSignature) noexcept -> void {
-    this->bpm = _bpm;
-    this->ppq = _ppq;
-    this->timeSignature = _timeSignature;
+auto Parameters::setHostInfo(double bpm, double ppq, const juce::AudioPlayHead::TimeSignature& timeSignature) noexcept -> void {
+    this->bpm = bpm;
+    this->ppq = ppq;
+    this->timeSignature = timeSignature;
 
-    if (_ppq > 0.0) {
-        this->ppq = _ppq;
-        this->internalPPQ = _ppq;
+    if (ppq > 0.0) {
+        this->ppq = ppq;
+        this->internalPPQ = ppq;
     } else {
         double ppqPerSample = (this->bpm / 60.0) / this->sampleRate;
         this->internalPPQ += ppqPerSample * this->blockSize; 
