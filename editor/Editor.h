@@ -1,8 +1,9 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Processor.h"
+#include "EventEmitter.hpp"
 
-class Editor : public juce::AudioProcessorEditor {
+class Editor : public juce::AudioProcessorEditor, public EventEmitter::Listener {
 public:
     Editor(Processor& p);
     ~Editor() override;
@@ -13,7 +14,7 @@ public:
     auto webviewOptions() -> juce::WebBrowserComponent::Options;
     auto getWebviewFileBytes(const juce::String& resourceStr) -> std::vector<std::byte>;
 
-    inline auto getWebview() -> juce::WebBrowserComponent& { return this->webview; }
+    auto handleEvent(const juce::String& name, const juce::var& payload) -> void override;
         
 private:
     Processor& processorRef;

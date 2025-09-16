@@ -3,20 +3,20 @@
   "version": "0.0.5",
   "name": "1/8 Saw Autopan",
   "author": "Moebytes",
-  "modified": "2025-09-15T04:59:16.806-04:00",
+  "modified": "2025-09-16T15:22:57.573-04:00",
   "presetFormat": 1,
   "parameters": {
-    "gain": 1.0,
+    "gain": "100%",
     "gainCurve": "linear",
-    "boost": 0.415833324193954,
+    "boost": "5.0dB",
     "boostCurve": "linear",
-    "pan": 0.5,
+    "pan": "0R",
     "panningLaw": "triangle",
     "gainLFOType": "saw",
     "gainLFORate": "1/4",
-    "gainLFOAmount": 0.0,
+    "gainLFOAmount": "0%",
     "panLFOType": "saw",
     "panLFORate": "1/4",
-    "panLFOAmount": 1.0
+    "panLFOAmount": "100%"
   }
 }

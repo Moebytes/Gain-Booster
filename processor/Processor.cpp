@@ -85,11 +85,7 @@ auto Processor::getCurrentProgram() -> int {
 
 auto Processor::setCurrentProgram(int index) -> void {
     this->presetManager.presetFolder = "factory";
-    auto presetName = this->presetManager.setPreset(index);
-    if (auto* activeEditor = this->getActiveEditor()) {
-        auto* editor = dynamic_cast<Editor*>(activeEditor);
-        editor->getWebview().emitEventIfBrowserIsVisible(juce::Identifier{"presetChanged"}, presetName);
-    }
+    this->presetManager.setPreset(index);
 }
 
 auto Processor::getProgramName(int index) -> const juce::String {

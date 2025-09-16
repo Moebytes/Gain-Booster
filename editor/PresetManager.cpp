@@ -2,6 +2,7 @@
 #include "Functions.hpp"
 #include "Settings.hpp"
 #include "ParameterIDs.hpp"
+#include "EventEmitter.hpp"
 #include "NativeMenuBridge.h"
 
 PresetManager::PresetManager(juce::AudioProcessorValueTreeState& tree) : treeRef(tree) {
@@ -44,6 +45,7 @@ auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>
                 this->currentPresetName = "Default";
                 this->presetFolder = "none";
                 this->presetIndex = 0;
+                EventEmitter::instance().emitEvent("presetChanged", this->currentPresetName);
                 completion(this->currentPresetName);
             } else if (action == "Load Preset") {
                 this->loadPresetFromFile([this, completion](){
@@ -66,6 +68,7 @@ auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>
                 this->currentPresetName = presetName;
                 this->presetIndex = presetIdx;
                 this->presetFolder = "factory";
+                EventEmitter::instance().emitEvent("presetChanged", this->currentPresetName);
                 completion(this->currentPresetName);
             }
         };
@@ -78,6 +81,7 @@ auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>
                 this->currentPresetName = presetName;
                 this->presetIndex = presetIdx;
                 this->presetFolder = "user";
+                EventEmitter::instance().emitEvent("presetChanged", this->currentPresetName);
                 completion(this->currentPresetName);
             }
         };
@@ -210,7 +214,7 @@ auto PresetManager::setPreset(int _presetIndex) -> juce::String {
     this->presetIndex = _presetIndex;
 
     if (this->presetFolder == "factory") {
-        if (this->factoryPresetNames.empty()) return "Default";
+        if (this->factoryPresetNames.empty()) return this->currentPresetName;
         auto presetName = factoryPresetNames[static_cast<size_t>(this->presetIndex)];
 
         auto it = factoryPresets.find(presetName);
@@ -218,12 +222,11 @@ auto PresetManager::setPreset(int _presetIndex) -> juce::String {
             auto jsonString = it->second;
             this->loadPreset(jsonString);
             this->currentPresetName = presetName;
-            return presetName;
         }
     }
 
     if (this->presetFolder == "user") {
-        if (this->userPresetNames.empty()) return "Default";
+        if (this->userPresetNames.empty()) return this->currentPresetName;
         auto presetName = userPresetNames[static_cast<size_t>(this->presetIndex)];
 
         auto it = userPresets.find(presetName);
@@ -231,11 +234,11 @@ auto PresetManager::setPreset(int _presetIndex) -> juce::String {
             auto jsonString = it->second;
             this->loadPreset(jsonString);
             this->currentPresetName = presetName;
-            return presetName;
         }
     }
 
-    return "Default";
+    EventEmitter::instance().emitEvent("presetChanged", this->currentPresetName);
+    return this->currentPresetName;
 }
 
 auto PresetManager::loadPresetFromFile(std::function<void()> onComplete) -> void {
@@ -410,11 +413,7 @@ auto PresetManager::savePreset(const juce::String& name, const juce::String& aut
         auto* param = this->treeRef.getParameter(id);
 
         if (param) {
-            if (ParameterIDs::isStringValue(id)) {
-                parameters->setProperty(id, param->getCurrentValueAsText());
-            } else {
-                parameters->setProperty(id, param->getValue());
-            }
+            parameters->setProperty(id, param->getCurrentValueAsText());
         }
     }
 
@@ -443,14 +442,8 @@ auto PresetManager::loadPreset(const juce::String& jsonStr) -> juce::String {
         auto id = property.name.toString();
         auto* param = this->treeRef.getParameter(id);
 
-        if (param) {
-            if (ParameterIDs::isStringValue(id)) {
-                auto value = param->getValueForText(property.value.toString());
-                param->setValueNotifyingHost(value);
-            } else {
-                param->setValueNotifyingHost(property.value);
-            }
-        }
+        float value = param->getValueForText(property.value.toString());
+        param->setValueNotifyingHost(value);
     }
 
     return presetName;

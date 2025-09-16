@@ -84,6 +84,6 @@ private:
     float increment = 0.0f;
     float phase = 0.0f;
 
-    bool retrigger = true;
+    bool retrigger = false;
     bool phaseInvert = true;
 };

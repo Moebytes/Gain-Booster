@@ -3,20 +3,20 @@
   "version": "0.0.5",
   "name": "Hard Left",
   "author": "Moebytes",
-  "modified": "2025-09-15T05:00:21.561-04:00",
+  "modified": "2025-09-16T15:24:00.446-04:00",
   "presetFormat": 1,
   "parameters": {
-    "gain": 1.0,
+    "gain": "100%",
     "gainCurve": "linear",
-    "boost": 0.415833324193954,
+    "boost": "5.0dB",
     "boostCurve": "linear",
-    "pan": 0.0,
+    "pan": "50L",
     "panningLaw": "triangle",
     "gainLFOType": "square",
     "gainLFORate": "1/4",
-    "gainLFOAmount": 0.0,
+    "gainLFOAmount": "0%",
     "panLFOType": "square",
     "panLFORate": "1/4",
-    "panLFOAmount": 0.0
+    "panLFOAmount": "0%"
   }
 }

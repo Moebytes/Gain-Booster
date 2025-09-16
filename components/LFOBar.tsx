@@ -84,12 +84,12 @@ const LFOBarRate: React.FunctionComponent<LFORateProps & WithJUCESliderProps> = 
             const threshold = 10
         
             if (dragAcc.current <= -threshold) {
-                if (dragPart.current === "num") {
+                if (dragPart.current === "numerator") {
                     setNumerator(prev => {
                         const i = allowedNumerators.indexOf(prev)
                         return allowedNumerators[Math.min(allowedNumerators.length - 1, i + 1)]
                     })
-                } else if (dragPart.current === "den") {
+                } else if (dragPart.current === "denominator") {
                     setDenominator(prev => {
                         const i = allowedDenominators.indexOf(prev)
                         return allowedDenominators[Math.min(allowedDenominators.length - 1, i + 1)]
@@ -99,12 +99,12 @@ const LFOBarRate: React.FunctionComponent<LFORateProps & WithJUCESliderProps> = 
             }
         
             if (dragAcc.current >= threshold) {
-                if (dragPart.current === "num") {
+                if (dragPart.current === "numerator") {
                     setNumerator(prev => {
                         const i = allowedNumerators.indexOf(prev)
                         return allowedNumerators[Math.max(0, i - 1)]
                     })
-                } else if (dragPart.current === "den") {
+                } else if (dragPart.current === "denominator") {
                     setDenominator(prev => {
                         const i = allowedDenominators.indexOf(prev)
                         return allowedDenominators[Math.max(0, i - 1)]
@@ -139,11 +139,11 @@ const LFOBarRate: React.FunctionComponent<LFORateProps & WithJUCESliderProps> = 
 
     return (
         <div className="lfobar-rate">
-            <span className="lfobar-rate-part" onMouseDown={() => (dragPart.current = "num")}>
+            <span className="lfobar-rate-part" onMouseDown={() => (dragPart.current = "numerator")}>
                 {numerator}
             </span>
             <span className="lfobar-rate-slash">/</span>
-            <span className="lfobar-rate-part" onMouseDown={() => (dragPart.current = "den")}>
+            <span className="lfobar-rate-part" onMouseDown={() => (dragPart.current = "denominator")}>
                 {denominator}
             </span>
             <img className="lfobar-rate-icon" src={musicNote} style={{filter}} draggable={false}/>

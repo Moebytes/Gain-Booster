@@ -3,20 +3,20 @@
   "version": "0.0.5",
   "name": "1/8 Autopan 50%",
   "author": "Moebytes",
-  "modified": "2025-09-15T04:58:16.380-04:00",
+  "modified": "2025-09-16T15:21:59.931-04:00",
   "presetFormat": 1,
   "parameters": {
-    "gain": 1.0,
+    "gain": "100%",
     "gainCurve": "linear",
-    "boost": 0.0,
+    "boost": "0.0dB",
     "boostCurve": "linear",
-    "pan": 0.5,
+    "pan": "0R",
     "panningLaw": "triangle",
     "gainLFOType": "square",
     "gainLFORate": "1/8",
-    "gainLFOAmount": 0.0,
+    "gainLFOAmount": "0%",
     "panLFOType": "square",
     "panLFORate": "1/8",
-    "panLFOAmount": 0.5
+    "panLFOAmount": "50%"
   }
 }

@@ -66,8 +66,24 @@ public:
         return juce::String::formatted("%.0f%%", value * 100.0f);
     }
 
+    static auto parsePercent(const juce::String& text) -> float {
+        auto clean = text.trim();
+        if (clean.endsWithChar('%')) {
+            clean = clean.dropLastCharacters(1).trim();
+        }
+        return clean.getFloatValue() / 100.0f;
+    }
+
     static auto displayDecibels(float value, int) -> juce::String {
-        return juce::String::formatted("%.1f dB", value);
+        return juce::String::formatted("%.1fdB", value);
+    }
+
+    static auto parseDecibels(const juce::String& text) -> float {
+        auto clean = text.trim();
+        if (clean.endsWithIgnoreCase("dB")) {
+            clean = clean.dropLastCharacters(2).trim();
+        }
+        return clean.getFloatValue();
     }
 
     static auto displayPan(float value, int) -> juce::String {
@@ -77,6 +93,21 @@ public:
         } else {
             return juce::String::formatted("%dR", position);
         }
+    }
+
+    static auto parsePan(const juce::String& text) -> float {
+        auto clean = text.trim().toUpperCase();
+        if (clean.endsWithChar('L')) {
+            clean = clean.dropLastCharacters(1);
+            float percent = clean.getFloatValue();
+            return juce::jlimit(-1.0f, 0.0f, -percent / 50.0f);
+        }
+        if (clean.endsWithChar('R')) {
+            clean = clean.dropLastCharacters(1);
+            float percent = clean.getFloatValue();
+            return juce::jlimit(0.0f, 1.0f, percent / 50.0f);
+        }
+        return clean.getFloatValue();
     }
 
     static auto displayLFORate(float value, int) -> juce::String {
@@ -98,7 +129,7 @@ public:
         if (text.containsChar('/')) {
             auto parts = juce::StringArray::fromTokens(text, "/", "");
             if (parts.size() == 2) {
-                auto numerator   = parts[0].getFloatValue();
+                auto numerator = parts[0].getFloatValue();
                 auto denominator = parts[1].getFloatValue();
                 if (denominator != 0.0f) {
                     return numerator / denominator;
@@ -161,5 +192,10 @@ public:
     
         return result;
     }
-    
+
+    static auto roundFloat(float value, int decimals = 6) {
+        float scale = std::pow(10.0f, static_cast<float>(decimals));
+        float rounded = std::round(value * scale) / scale;
+        return (rounded == 0.0f ? 0.0f : rounded);
+    }
 };

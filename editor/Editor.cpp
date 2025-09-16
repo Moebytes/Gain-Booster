@@ -25,9 +25,13 @@ Editor::Editor(Processor& p) : AudioProcessorEditor(&p), processorRef(p),
     this->setSize(width, height);
 
     this->addAndMakeVisible(webview);
+
+    EventEmitter::instance().addListener(this);
 }
 
-Editor::~Editor() {}
+Editor::~Editor() {
+    EventEmitter::instance().removeListener(this);
+}
 
 auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     return juce::WebBrowserComponent::Options{}
@@ -60,6 +64,9 @@ auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
     })
     .withNativeFunction("nextPreset", [this](auto args, auto completion){ 
         return this->processorRef.presetManager.nextPreset(args, completion); 
+    })
+    .withNativeFunction("currentPresetName", [this]([[maybe_unused]] auto args, auto completion){ 
+        return completion(this->processorRef.presetManager.currentPresetName);
     });
 }
 
@@ -101,4 +108,11 @@ auto Editor::getResource(const juce::String& url) -> std::optional<juce::WebBrow
         }
     #endif
     return std::nullopt;
+}
+
+
+auto Editor::handleEvent(const juce::String& name, const juce::var& payload) -> void {
+    if (name == "presetChanged") {
+        this->webview.emitEventIfBrowserIsVisible(juce::Identifier{name}, payload.toString());
+    }
 }

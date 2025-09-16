@@ -62,6 +62,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         paramIDs.gain, "Gain", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 1.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
+        .withValueFromStringFunction(Functions::parsePercent)
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
@@ -71,6 +72,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         paramIDs.boost, "Boost", juce::NormalisableRange<float>{0.0f, 12.0f, 0.01f}, 0.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayDecibels)
+        .withValueFromStringFunction(Functions::parseDecibels)
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
@@ -80,6 +82,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         paramIDs.pan, "Pan", juce::NormalisableRange<float>{-1.0f, 1.0f, 0.01f}, 0.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPan)
+        .withValueFromStringFunction(Functions::parsePan)
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
@@ -99,6 +102,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         paramIDs.gainLFOAmount, "Gain LFO Amount", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
+        .withValueFromStringFunction(Functions::parsePercent)
     ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
@@ -114,6 +118,7 @@ auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         paramIDs.panLFOAmount, "Pan LFO Amount", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
+        .withValueFromStringFunction(Functions::parsePercent)
     ));
 
     return layout;

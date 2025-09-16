@@ -5,6 +5,7 @@ import "./styles/presetbar.scss"
 const openPresetMenu = JUCE.getNativeFunction("openPresetMenu")
 const prevPreset = JUCE.getNativeFunction("prevPreset")
 const nextPreset = JUCE.getNativeFunction("nextPreset")
+const currentPresetName = JUCE.getNativeFunction("currentPresetName")
 
 
 const PresetBar: React.FunctionComponent = () => {
@@ -12,7 +13,13 @@ const PresetBar: React.FunctionComponent = () => {
 
     useEffect(() => {
         window.__JUCE__.backend.addEventListener("presetChanged", changePreset)
+        current()
     }, [])
+
+    const current = async () => {
+        const name = await currentPresetName()
+        if (name) setPreset(name)
+    }
 
     const prev = async () => {
         const prev = await prevPreset()
