@@ -2,6 +2,8 @@
 #include <cmath>
 #include <JuceHeader.h>
 
+using TimeSignature = juce::AudioPlayHead::TimeSignature;
+
 class LFO {
 public:
     LFO() = default;
@@ -20,39 +22,38 @@ public:
         this->type = _type.toLowerCase();
     }
 
-    auto setBPM(double _bpm) -> void {
+    auto setHzRate(float _frequency) -> void {
+        this->frequency = _frequency;
+        this->increment = this->frequency / static_cast<float>(this->sampleRate);
+    }
+
+    auto setSyncedRate(float syncedRate) -> void {
+        float timeScale = static_cast<float>(this->timeSignature.numerator) / static_cast<float>(this->timeSignature.denominator);
+        this->syncedBeats = static_cast<float>(syncedRate) * 4.0f * timeScale;
+
+        double beatDuration = 60.0 / this->bpm;
+        double syncedSamples = this->syncedBeats * beatDuration * this->sampleRate;
+        this->increment = 1.0f / static_cast<float>(syncedSamples);
+    }
+
+    auto syncToHost(double _bpm, double ppq, const TimeSignature& _timeSignature) -> void {
         this->bpm = _bpm;
-    }
+        this->timeSignature = _timeSignature;
 
-    auto setHzRate(float _frequencyHz) -> void {
-        this->frequencyHz = _frequencyHz;
-        this->phaseIncrement = this->frequencyHz / static_cast<float>(this->sampleRate);
-    }
-
-    auto setSyncedRate(float noteLength, const juce::AudioPlayHead::TimeSignature& timeSignature) -> void {
-        float timeScale = static_cast<float>(timeSignature.numerator) / static_cast<float>(timeSignature.denominator);
-        this->beatsPerCycle = static_cast<float>(noteLength) * 4.0f * timeScale;
-
-        double secondsPerBeat = 60.0 / this->bpm;
-        double samplesPerCycle = this->beatsPerCycle * secondsPerBeat * this->sampleRate;
-        this->phaseIncrement = 1.0f / static_cast<float>(samplesPerCycle);
-    }
-
-    auto syncToHost(double ppq) -> void {
         if (this->retrigger) {
-            double fractionalCycle = std::fmod(ppq / this->beatsPerCycle, 1.0);
-            this->phase = static_cast<float>(fractionalCycle);
+            double position = std::fmod(ppq, this->syncedBeats);
+            if (position < (1.0 / this->sampleRate)) {
+                this->phase = 0.0f;
+            }
         }
     }
 
     auto getSample() -> float {
         float value = renderWaveform(this->phase);
-        if (this->phaseInvert) value *= -1;
+        if (this->phaseInvert) value *= -1.0f;
 
-        if (!this->retrigger) {
-            this->phase += this->phaseIncrement;
-            if (this->phase >= 1.0f) this->phase -= 1.0f;
-        }
+        this->phase += this->increment;
+        if (this->phase >= 1.0f) this->phase -= 1.0f;
 
         return value;
     }
@@ -76,10 +77,11 @@ private:
 
     double sampleRate = 44100.0;
     double bpm = 150.0;
+    TimeSignature timeSignature{4, 4};
 
-    float frequencyHz = 1.0f;
-    float phaseIncrement = 0.0f;
-    float beatsPerCycle = 1.0f;
+    float frequency = 1.0f;
+    float syncedBeats = 1.0f;
+    float increment = 0.0f;
     float phase = 0.0f;
 
     bool retrigger = true;

@@ -3,6 +3,8 @@
 #include "Parameters.h"
 #include "PresetManager.h"
 
+using TimeSignature = juce::AudioPlayHead::TimeSignature;
+
 class Processor : public juce::AudioProcessor {
 public:
   Processor();
@@ -11,6 +13,7 @@ public:
   auto prepareToPlay(double sampleRate, int samplesPerBlock) -> void override;
   auto releaseResources() -> void override;
   auto processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) -> void override;
+  auto getHostInfo() noexcept -> std::tuple<double, double, TimeSignature>;
 
   auto isBusesLayoutSupported (const BusesLayout& layouts) const -> bool override;
   auto createEditor() -> juce::AudioProcessorEditor* override;

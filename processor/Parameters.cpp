@@ -177,7 +177,7 @@ auto Parameters::reset() noexcept -> void {
     this->panLFO.reset();
 }
 
-auto Parameters::setHostInfo(double _bpm, double _ppq, const juce::AudioPlayHead::TimeSignature& _timeSignature, bool isPlaying) noexcept -> void {
+auto Parameters::setHostInfo(double _bpm, double _ppq, const juce::AudioPlayHead::TimeSignature& _timeSignature) noexcept -> void {
     this->bpm = _bpm;
     this->ppq = _ppq;
     this->timeSignature = _timeSignature;
@@ -191,10 +191,8 @@ auto Parameters::setHostInfo(double _bpm, double _ppq, const juce::AudioPlayHead
         this->ppq = this->internalPPQ;
     }
 
-    this->gainLFO.setBPM(this->bpm);
-    this->panLFO.setBPM(this->bpm);
-    this->gainLFO.syncToHost(this->ppq);
-    this->panLFO.syncToHost(this->ppq);
+    this->gainLFO.syncToHost(this->bpm, this->ppq, this->timeSignature);
+    this->panLFO.syncToHost(this->bpm, this->ppq, this->timeSignature);
 }
 
 auto Parameters::blockUpdate() noexcept -> void {
@@ -216,8 +214,8 @@ auto Parameters::blockUpdate() noexcept -> void {
     float gainLFOSyncedTime = this->gainLFORateParam->get();
     float panLFOSyncedTime = this->panLFORateParam->get();
 
-    this->gainLFO.setSyncedRate(gainLFOSyncedTime, this->timeSignature);
-    this->panLFO.setSyncedRate(panLFOSyncedTime, this->timeSignature);
+    this->gainLFO.setSyncedRate(gainLFOSyncedTime);
+    this->panLFO.setSyncedRate(panLFOSyncedTime);
 }
 
 auto Parameters::update() noexcept -> void {

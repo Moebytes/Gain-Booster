@@ -17,8 +17,7 @@ public:
         if (file.existsAsFile()) json = juce::JSON::parse(file);
         if (!json.isObject()) json = juce::var{new juce::DynamicObject()};
     
-        auto* obj = json.getDynamicObject();
-        if (obj != nullptr) {
+        if (auto* obj = json.getDynamicObject()) {
             obj->setProperty(key, value);
             file.getParentDirectory().createDirectory();
             file.replaceWithText(juce::JSON::toString(json, true)); 
@@ -33,8 +32,7 @@ public:
         auto json = juce::JSON::parse(file);
         if (!json.isObject()) return defaultValue;
         
-        auto* obj = json.getDynamicObject();
-        if (obj != nullptr) {
+        if (auto* obj = json.getDynamicObject()) {
             if (obj->hasProperty(key)) return obj->getProperty(key);
         }
     

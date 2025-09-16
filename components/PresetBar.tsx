@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useState, useEffect} from "react"
 import * as JUCE from "juce-framework-frontend-mirror"
 import "./styles/presetbar.scss"
 
@@ -6,8 +6,13 @@ const openPresetMenu = JUCE.getNativeFunction("openPresetMenu")
 const prevPreset = JUCE.getNativeFunction("prevPreset")
 const nextPreset = JUCE.getNativeFunction("nextPreset")
 
+
 const PresetBar: React.FunctionComponent = () => {
     const [preset, setPreset] = useState("Default")
+
+    useEffect(() => {
+        window.__JUCE__.backend.addEventListener("presetChanged", changePreset)
+    }, [])
 
     const prev = async () => {
         const prev = await prevPreset()
@@ -22,6 +27,10 @@ const PresetBar: React.FunctionComponent = () => {
     const presetMenu = async () => {
         const name = await openPresetMenu()
         if (name) setPreset(name)
+    }
+
+    const changePreset = (name: string) => {
+        setPreset(name)
     }
 
     const shapes = {

@@ -73,8 +73,7 @@ auto Editor::getWebviewFileBytes(const juce::String& resourceStr) -> std::vector
     juce::MemoryInputStream zipStream(BinaryData::webview_files_zip, BinaryData::webview_files_zipSize, false);
     juce::ZipFile zip{zipStream};
 
-    auto* entry = zip.getEntry(resourceStr);
-    if (entry != nullptr) {
+    if (auto* entry = zip.getEntry(resourceStr)) {
         std::unique_ptr<juce::InputStream> entryStream{zip.createStreamForEntry(*entry)};
         if (entryStream == nullptr) {
             jassertfalse;

@@ -12,10 +12,11 @@ public:
     auto getResource(const juce::String& url) -> std::optional<juce::WebBrowserComponent::Resource>;
     auto webviewOptions() -> juce::WebBrowserComponent::Options;
     auto getWebviewFileBytes(const juce::String& resourceStr) -> std::vector<std::byte>;
+
+    inline auto getWebview() -> juce::WebBrowserComponent& { return this->webview; }
         
 private:
     Processor& processorRef;
-
     juce::ComponentBoundsConstrainer constrainer;
 
     juce::WebSliderRelay gainRelay {Parameters::paramIDs.gain.getParamID()};

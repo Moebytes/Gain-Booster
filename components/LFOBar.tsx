@@ -135,7 +135,6 @@ const LFOBarRate: React.FunctionComponent<LFORateProps & WithJUCESliderProps> = 
         const fraction = functions.getFraction(value, allowedNumerators, allowedDenominators)
         setNumerator(fraction.numerator)
         setDenominator(fraction.denominator)
-        onChange(fraction.numerator / fraction.denominator)
     }, [value])
 
     return (

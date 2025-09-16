@@ -1,6 +1,5 @@
 #include "Processor.h"
 #include "Editor.h"
-#include "BPM.hpp"
 #include "Functions.hpp"
 
 Processor::Processor() : AudioProcessor(
@@ -19,6 +18,21 @@ auto Processor::prepareToPlay(double sampleRate, int samplesPerBlock) -> void {
 
 auto Processor::releaseResources() -> void {}
 
+auto Processor::getHostInfo() noexcept -> std::tuple<double, double, TimeSignature> {
+    double bpm = 150.0;
+    double ppq = 0.0;
+    TimeSignature timeSignature{4, 4};
+
+    if (auto* playhead = this->getPlayHead()) {
+        auto info = playhead->getPosition().orFallback(juce::AudioPlayHead::PositionInfo{});
+        bpm = info.getBpm().orFallback(150.0);
+        ppq = info.getPpqPosition().orFallback(0.0);
+        timeSignature = info.getTimeSignature().orFallback(TimeSignature{4, 4});
+    }
+
+    return {bpm, ppq, timeSignature};
+}
+
 auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] juce::MidiBuffer& midiMessages) -> void {
     juce::ScopedNoDenormals noDenormals;
 
@@ -31,8 +45,8 @@ auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] 
     float* outputL = mainOutput.getWritePointer(0);
     float* outputR = mainOutput.getNumChannels() > 1 ? mainOutput.getWritePointer(1) : outputL;
 
-    auto [bpm, ppq, timeSignature, isPlaying] = BPM::getHostInfo(getPlayHead());
-    this->parameters.setHostInfo(bpm, ppq, timeSignature, isPlaying);
+    auto [bpm, ppq, timeSignature] = this->getHostInfo();
+    this->parameters.setHostInfo(bpm, ppq, timeSignature);
     this->parameters.blockUpdate();
 
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
@@ -62,32 +76,26 @@ auto Processor::isBusesLayoutSupported(const BusesLayout& layouts) const -> bool
 }
 
 auto Processor::getNumPrograms() -> int {
-    if (this->presetManager.presetFolder == "factory") {
-        return static_cast<int>(this->presetManager.factoryPresets.size());
-    } else if (this->presetManager.presetFolder == "user") {
-        return static_cast<int>(this->presetManager.userPresets.size());
-    }
-    return 1;
+    return static_cast<int>(this->presetManager.factoryPresets.size());
 }
 
 auto Processor::getCurrentProgram() -> int {
-    if (this->presetManager.presetFolder != "none") {
-        return this->presetManager.presetIndex;
-    }
-    return 0;
+    return this->presetManager.presetIndex;
 }
 
 auto Processor::setCurrentProgram(int index) -> void {
-    this->presetManager.setPreset(index);
+    this->presetManager.presetFolder = "factory";
+    auto presetName = this->presetManager.setPreset(index);
+    if (auto* activeEditor = this->getActiveEditor()) {
+        auto* editor = dynamic_cast<Editor*>(activeEditor);
+        editor->getWebview().emitEventIfBrowserIsVisible(juce::Identifier{"presetChanged"}, presetName);
+    }
 }
 
 auto Processor::getProgramName(int index) -> const juce::String {
-    if (this->presetManager.presetFolder == "factory") {
-        return this->presetManager.factoryPresetNames[static_cast<size_t>(index)];
-    } else if (this->presetManager.presetFolder == "user") {
-        return this->presetManager.userPresetNames[static_cast<size_t>(index)];
-    }
-    return "Default";
+    int safeIndex = juce::jlimit(0, this->getNumPrograms() - 1, index);
+    auto presetName = this->presetManager.factoryPresetNames[static_cast<size_t>(safeIndex)];
+    return Functions::replaceChar(presetName, '/', '-');
 }
 
 auto Processor::changeProgramName([[maybe_unused]] int index, [[maybe_unused]] const juce::String& newName) -> void {}

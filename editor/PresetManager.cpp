@@ -330,8 +330,7 @@ auto PresetManager::loadFactoryPresets() -> void {
         auto content = inputStream->readEntireStreamAsString();
         auto json = juce::JSON::parse(content);
 
-        auto* obj = json.getDynamicObject();
-        if (obj != nullptr) {
+        if (auto* obj = json.getDynamicObject()) {
             auto presetName = obj->getProperty("name").toString();
             if (presetName.isEmpty()) {
                 auto entryFile = juce::File::createFileWithoutCheckingPath(entry->filename);
@@ -385,8 +384,7 @@ auto PresetManager::loadUserPresets() -> void {
         auto content = file.loadFileAsString();
         auto json = juce::JSON::parse(content);
 
-        auto* obj = json.getDynamicObject();
-        if (obj != nullptr) {
+        if (auto* obj = json.getDynamicObject()) {
             auto presetName = obj->getProperty("name").toString();
             if (presetName.isEmpty()) presetName = file.getFileNameWithoutExtension();
 

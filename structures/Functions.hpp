@@ -150,5 +150,16 @@ public:
         }
         
         return result;
-    }    
+    }   
+    
+    static auto replaceChar(const juce::String& input, juce_wchar oldChar, juce_wchar newChar) -> juce::String {
+        juce::String result;
+    
+        for (int i = 0; i < input.length(); i++) {
+            result += (input[i] == oldChar) ? newChar : input[i];
+        }
+    
+        return result;
+    }
+    
 };

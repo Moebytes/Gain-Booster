@@ -15,7 +15,7 @@ public:
     auto init() noexcept -> void;
     auto blockUpdate() noexcept -> void;
     auto update() noexcept -> void;
-    auto setHostInfo(double bpm, double ppq, const juce::AudioPlayHead::TimeSignature& timeSignature, bool isPlaying) noexcept -> void;
+    auto setHostInfo(double bpm, double ppq, const juce::AudioPlayHead::TimeSignature& timeSignature) noexcept -> void;
 
     auto getDefaultParameter(const juce::Array<juce::var>& args, 
         juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
