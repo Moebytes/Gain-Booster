@@ -82,17 +82,29 @@ auto* myClass = new MyClass{};
 auto myClass = std::make_unique<MyClass>();
 ```
 
-**8. Use brace initialization for classes, else copy initialization** 
+**8. Use copy initialization** \
+There are enough braces in the code we don't need even more.
 
 ```cpp
 // x Bad
 int x{5};
+MyClass myClass{5, 4};
 // ✓ Good
 int x = 5;
 auto myClass = MyClass{5, 4};
 ```
 
-**9. Pointers and reference are part of the type** 
+**9. Use braces when calling the constructor** \
+This avoids the compiler possibly interpreting it as a function declaration. 
+
+```cpp
+// x Bad
+auto myClass = MyClass(5, 4);
+// ✓ Good
+auto myClass = MyClass{5, 4};
+```
+
+**10. Pointers and reference are part of the type** 
 
 ```cpp
 // x Bad
@@ -101,7 +113,7 @@ auto method(const std::string &str, float *ptr) -> void {}
 auto method(const std::string& str, float* ptr) -> void {}
 ```
 
-**10. Prefer auto function parameters, unless the template is needed in the function body** 
+**11. Prefer auto function parameters, unless the template is needed in the function body** 
 
 ```cpp
 // x Bad
@@ -111,7 +123,7 @@ auto bind(F&& func, const std::string& name) -> void {}
 auto bind(auto&& func, const std::string& name) -> void {}
 ```
 
-**11. Preface class member variables with this** 
+**12. Preface class member variables with this** 
 
 ```cpp
 // x Bad
@@ -120,7 +132,7 @@ doSomething();
 this->doSomething();
 ```
 
-**12. Use static_cast and dynamic_cast over C casts** \
+**13. Use static_cast and dynamic_cast over C casts** \
 Also avoid using reinterpret_cast unless necessary.
 
 ```cpp
@@ -130,7 +142,7 @@ int x = (int) 5.3;
 int x = static_cast<int>(5.3);
 ```
 
-**13. Use post increment in for loops** \
+**14. Use post increment in for loops** \
 There shouldn't be a difference anymore, and post increment looks better.
 
 ```cpp
@@ -140,7 +152,7 @@ for (int i = 0; i < 5; ++i) {}
 for (int i = 0; i < 5; i++) {}
 ```
 
-**14. Use the member initialization list** 
+**15. Use the member initialization list** 
 
 ```cpp
 // x Bad
@@ -149,4 +161,13 @@ MyClass::MyClass(std::string a) {
 }
 // ✓ Good
 MyClass::MyClass(std::string a) : a(a) {}
+```
+
+**16. Prefer C++ std lib over C std lib** 
+
+```cpp
+// x Bad
+printf("hello world");
+// ✓ Good
+std::cout << "hello world" << std::endl;
 ```
