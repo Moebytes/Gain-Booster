@@ -7,7 +7,7 @@ Gain Booster is a VST/AU plugin for gain control, panning, and quick LFO modulat
 ### Controls:
 - Gain - the knob controls the volume from 0% to 100%.
 - Gain curve - you can choose a logarithmic, linear, or exponential curve for the gain knob.
-- Boost = with the boost knob, you can increase the original volume by up to 12 dB.
+- Boost - with the boost knob, you can increase the original volume by up to 12 dB.
 - Boost curve - you can choose a logarithmic, linear, or exponential curve for the boost knob.
 - Pan - this controls the volume of the left and right channels individually for a stereo effect.
 - Panning Law - changes the panning law algorithm between constant power, triangular, and linear.
