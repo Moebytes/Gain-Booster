@@ -2,7 +2,7 @@
 #include <cmath>
 #include <JuceHeader.h>
 
-using TimeSignature = juce::AudioPlayHead::TimeSignature;
+using TimeSignature = AudioPlayHead::TimeSignature;
 
 class LFO {
 public:
@@ -18,7 +18,7 @@ public:
         this->phase = 0.0f;
     }
 
-    auto setType(const juce::String& type) -> void {
+    auto setType(const String& type) -> void {
         this->type = type.toLowerCase();
     }
 
@@ -60,7 +60,7 @@ public:
 
     auto renderWaveform(float pos) -> float {
         if (this->type == "sine") {
-            return std::sin(pos * juce::MathConstants<float>::twoPi);
+            return std::sin(pos * MathConstants<float>::twoPi);
         } else if (this->type == "triangle") {
             return 4.0f * std::abs(pos - 0.5f) - 1.0f;
         } else if (this->type == "square") {
@@ -73,7 +73,7 @@ public:
     }
 
 private:
-    juce::String type = "square";
+    String type = "square";
 
     double sampleRate = 44100.0;
     double bpm = 150.0;

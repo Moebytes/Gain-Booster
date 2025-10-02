@@ -5,53 +5,53 @@
 
 class Parameters {
 public:
-    Parameters(juce::AudioProcessorValueTreeState& tree);
+    Parameters(AudioProcessorValueTreeState& tree);
     ~Parameters() = default;
 
-    static auto createParameterLayout() -> juce::AudioProcessorValueTreeState::ParameterLayout;
+    static auto createParameterLayout() -> AudioProcessorValueTreeState::ParameterLayout;
 
     auto prepareToPlay(double sampleRate, int blockSize) noexcept -> void;
     auto reset() noexcept -> void;
     auto init() noexcept -> void;
     auto blockUpdate() noexcept -> void;
     auto update() noexcept -> void;
-    auto setHostInfo(double bpm, double ppq, const juce::AudioPlayHead::TimeSignature& timeSignature) noexcept -> void;
+    auto setHostInfo(double bpm, double ppq, const AudioPlayHead::TimeSignature& timeSignature) noexcept -> void;
 
-    auto getDefaultParameter(const juce::Array<juce::var>& args, 
-        juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
+    auto getDefaultParameter(const Array<var>& args, 
+        WebBrowserComponent::NativeFunctionCompletion completion) -> void;
 
     static ParameterIDs paramIDs;
 
     float gain = 1.0f;
-    juce::AudioParameterFloat* gainParam;
-    juce::AudioParameterChoice* gainCurveParam;
+    AudioParameterFloat* gainParam;
+    AudioParameterChoice* gainCurveParam;
 
     float boost = 0.0f;
-    juce::AudioParameterFloat* boostParam;
-    juce::AudioParameterChoice* boostCurveParam;
+    AudioParameterFloat* boostParam;
+    AudioParameterChoice* boostCurveParam;
 
     float pan = 0.0f;
     float panL = 0.0f;
     float panR = 1.0f;
-    juce::AudioParameterFloat* panParam;
-    juce::AudioParameterChoice* panningLawParam;
+    AudioParameterFloat* panParam;
+    AudioParameterChoice* panningLawParam;
 
-    juce::AudioParameterChoice* gainLFOTypeParam;
-    juce::AudioParameterFloat* gainLFORateParam;
-    juce::AudioParameterFloat*  gainLFOAmountParam;
+    AudioParameterChoice* gainLFOTypeParam;
+    AudioParameterFloat* gainLFORateParam;
+    AudioParameterFloat*  gainLFOAmountParam;
 
-    juce::AudioParameterChoice* panLFOTypeParam;
-    juce::AudioParameterFloat* panLFORateParam;
-    juce::AudioParameterFloat*  panLFOAmountParam;
+    AudioParameterChoice* panLFOTypeParam;
+    AudioParameterFloat* panLFORateParam;
+    AudioParameterFloat*  panLFOAmountParam;
 
 private:
-    juce::AudioProcessorValueTreeState& tree;
+    AudioProcessorValueTreeState& tree;
     
-    juce::LinearSmoothedValue<float> gainSmoother;
-    juce::LinearSmoothedValue<float> boostSmoother;
-    juce::LinearSmoothedValue<float> panSmoother;
-    juce::LinearSmoothedValue<float> gainLFOAmountSmoother;
-    juce::LinearSmoothedValue<float> panLFOAmountSmoother;
+    LinearSmoothedValue<float> gainSmoother;
+    LinearSmoothedValue<float> boostSmoother;
+    LinearSmoothedValue<float> panSmoother;
+    LinearSmoothedValue<float> gainLFOAmountSmoother;
+    LinearSmoothedValue<float> panLFOAmountSmoother;
 
     LFO gainLFO;
     LFO panLFO;
@@ -60,7 +60,7 @@ private:
     double bpm = 150.0;
     double ppq = 0.0;
     double internalPPQ = 0.0;
-    juce::AudioPlayHead::TimeSignature timeSignature{4, 4};
+    AudioPlayHead::TimeSignature timeSignature{4, 4};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Parameters)
 };

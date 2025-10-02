@@ -9,7 +9,7 @@
 
 class Functions {
 public:
-    static auto streamToVector(juce::InputStream& stream) -> std::vector<std::byte> {
+    static auto streamToVector(InputStream& stream) -> std::vector<std::byte> {
         std::vector<std::byte> result(static_cast<size_t>(stream.getTotalLength()));
         stream.setPosition(0);
         [[maybe_unused]] auto bytesRead = stream.read (result.data(), result.size());
@@ -43,30 +43,30 @@ public:
         return "";
     }
 
-    static auto checkAudioSafety(juce::AudioBuffer<float>& buffer) -> void {
+    static auto checkAudioSafety(AudioBuffer<float>& buffer) -> void {
         for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
             float* channelData = buffer.getWritePointer(channel);
             for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
                 float value = channelData[sample];
                 if (std::isnan(value)) {
-                    juce::Logger::outputDebugString("NaN detected");
+                    Logger::outputDebugString("NaN detected");
                     return buffer.clear();
                 } else if (std::isinf(value)) {
-                    juce::Logger::outputDebugString("Inf detected");
+                    Logger::outputDebugString("Inf detected");
                     return buffer.clear();
                 } else if (value < -2.0f || value > 2.0f) {
-                    juce::Logger::outputDebugString("Sample out of range");
+                    Logger::outputDebugString("Sample out of range");
                     return buffer.clear();
                 }
             }
         }
     }
 
-    static auto displayPercent(float value, int) -> juce::String {
-        return juce::String::formatted("%.0f%%", value * 100.0f);
+    static auto displayPercent(float value, int) -> String {
+        return String::formatted("%.0f%%", value * 100.0f);
     }
 
-    static auto parsePercent(const juce::String& text) -> float {
+    static auto parsePercent(const String& text) -> float {
         auto clean = text.trim();
         if (clean.endsWithChar('%')) {
             clean = clean.dropLastCharacters(1).trim();
@@ -74,11 +74,11 @@ public:
         return clean.getFloatValue() / 100.0f;
     }
 
-    static auto displayDecibels(float value, int) -> juce::String {
-        return juce::String::formatted("%.1fdB", value);
+    static auto displayDecibels(float value, int) -> String {
+        return String::formatted("%.1fdB", value);
     }
 
-    static auto parseDecibels(const juce::String& text) -> float {
+    static auto parseDecibels(const String& text) -> float {
         auto clean = text.trim();
         if (clean.endsWithIgnoreCase("dB")) {
             clean = clean.dropLastCharacters(2).trim();
@@ -86,48 +86,48 @@ public:
         return clean.getFloatValue();
     }
 
-    static auto displayPan(float value, int) -> juce::String {
+    static auto displayPan(float value, int) -> String {
         int position = static_cast<int>(value * 50.0f);
         if (position < 0) {
-            return juce::String::formatted("%dL", -position);
+            return String::formatted("%dL", -position);
         } else {
-            return juce::String::formatted("%dR", position);
+            return String::formatted("%dR", position);
         }
     }
 
-    static auto parsePan(const juce::String& text) -> float {
+    static auto parsePan(const String& text) -> float {
         auto clean = text.trim().toUpperCase();
         if (clean.endsWithChar('L')) {
             clean = clean.dropLastCharacters(1);
             float percent = clean.getFloatValue();
-            return juce::jlimit(-1.0f, 0.0f, -percent / 50.0f);
+            return jlimit(-1.0f, 0.0f, -percent / 50.0f);
         }
         if (clean.endsWithChar('R')) {
             clean = clean.dropLastCharacters(1);
             float percent = clean.getFloatValue();
-            return juce::jlimit(0.0f, 1.0f, percent / 50.0f);
+            return jlimit(0.0f, 1.0f, percent / 50.0f);
         }
         return clean.getFloatValue();
     }
 
-    static auto displayLFORate(float value, int) -> juce::String {
+    static auto displayLFORate(float value, int) -> String {
         float epsilon = 0.0001f;
     
         for (int numerator = 1; numerator <= 4; numerator++) {
             for (int denominator = 1; denominator <= 32; denominator++) {
                 float candidate = static_cast<float>(numerator) / static_cast<float>(denominator);
                 if (std::abs(value - candidate) < epsilon) {
-                    return juce::String::formatted("%d/%d", numerator, denominator);
+                    return String::formatted("%d/%d", numerator, denominator);
                 }
             }
         }
     
-        return juce::String(value);
+        return String(value);
     }
 
-    static auto parseLFORate(const juce::String& text) -> float {
+    static auto parseLFORate(const String& text) -> float {
         if (text.containsChar('/')) {
-            auto parts = juce::StringArray::fromTokens(text, "/", "");
+            auto parts = StringArray::fromTokens(text, "/", "");
             if (parts.size() == 2) {
                 auto numerator = parts[0].getFloatValue();
                 auto denominator = parts[1].getFloatValue();
@@ -139,7 +139,7 @@ public:
         return text.getFloatValue();
     }
 
-    static auto getDownloadsFolder() -> juce::File {
+    static auto getDownloadsFolder() -> File {
         #if JUCE_WINDOWS
             PWSTR path = nullptr;
             if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, nullptr, &path))) {
@@ -147,26 +147,26 @@ public:
                 if (utf8Size > 0) {
                     auto utf8Path = std::unique_ptr<char[]>(new char[utf8Size]);
                     WideCharToMultiByte(CP_UTF8, 0, path, -1, utf8Path.get(), utf8Size, nullptr, nullptr);
-                    juce::String downloadsPath = juce::String::fromUTF8(utf8Path.get());
+                    String downloadsPath = String::fromUTF8(utf8Path.get());
                     CoTaskMemFree(path);
-                    return juce::File(downloadsPath);
+                    return File(downloadsPath);
                 }
                 CoTaskMemFree(path);
             }
-            return juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+            return File::getSpecialLocation(File::userDocumentsDirectory);
         #else
-            auto downloadsPath = juce::File::getSpecialLocation(juce::File::userHomeDirectory).getChildFile("Downloads");
+            auto downloadsPath = File::getSpecialLocation(File::userHomeDirectory).getChildFile("Downloads");
             if (downloadsPath.exists() && downloadsPath.isDirectory()) {
                 return downloadsPath;
             }
-            return juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+            return File::getSpecialLocation(File::userDocumentsDirectory);
         #endif
     }
 
-    static auto cleanFilename(const juce::String& input) -> juce::String {
-        static juce::String illegalChars = "\"*/\\:<>?|";
+    static auto cleanFilename(const String& input) -> String {
+        static String illegalChars = "\"*/\\:<>?|";
     
-        juce::String result;
+        String result;
         for (auto c : input) {
             if (illegalChars.containsChar(c)) {
                 continue;
@@ -183,8 +183,8 @@ public:
         return result;
     }   
     
-    static auto replaceChar(const juce::String& input, juce_wchar oldChar, juce_wchar newChar) -> juce::String {
-        juce::String result;
+    static auto replaceChar(const String& input, juce_wchar oldChar, juce_wchar newChar) -> String {
+        String result;
     
         for (int i = 0; i < input.length(); i++) {
             result += (input[i] == oldChar) ? newChar : input[i];

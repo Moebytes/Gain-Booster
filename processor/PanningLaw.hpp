@@ -4,7 +4,7 @@
 class PanningLaw {
 public:
     static inline auto constantPowerPanning(float pan, float& panL, float& panR) -> void {
-        float angle = (pan + 1.0f) * juce::MathConstants<float>::pi * 0.25f;
+        float angle = (pan + 1.0f) * MathConstants<float>::pi * 0.25f;
         panL = std::cos(angle);
         panR = std::sin(angle);
         float norm = 1.0f / std::sqrt(panL * panL + panR * panR);

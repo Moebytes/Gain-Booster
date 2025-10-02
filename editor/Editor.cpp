@@ -33,11 +33,11 @@ Editor::~Editor() {
     EventEmitter::instance().removeListener(this);
 }
 
-auto Editor::webviewOptions() -> juce::WebBrowserComponent::Options {
-    return juce::WebBrowserComponent::Options{}
-    .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
-    .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
-    .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
+auto Editor::webviewOptions() -> WebBrowserComponent::Options {
+    return WebBrowserComponent::Options{}
+    .withBackend(WebBrowserComponent::Options::Backend::webview2)
+    .withWinWebView2Options(WebBrowserComponent::Options::WinWebView2{}
+    .withUserDataFolder(File::getSpecialLocation(File::tempDirectory)))
     .withResourceProvider([this](const auto& url) { return getResource(url); })
     .withNativeIntegrationEnabled()
     .withKeepPageLoadedWhenBrowserIsHidden()
@@ -76,12 +76,12 @@ auto Editor::resized() -> void {
     Settings::setSettingKey("windowHeight", getHeight());
 }
 
-auto Editor::getWebviewFileBytes(const juce::String& resourceStr) -> std::vector<std::byte> {
-    juce::MemoryInputStream zipStream(BinaryData::webview_files_zip, BinaryData::webview_files_zipSize, false);
-    juce::ZipFile zip{zipStream};
+auto Editor::getWebviewFileBytes(const String& resourceStr) -> std::vector<std::byte> {
+    MemoryInputStream zipStream(BinaryData::webview_files_zip, BinaryData::webview_files_zipSize, false);
+    ZipFile zip{zipStream};
 
     if (auto* entry = zip.getEntry(resourceStr)) {
-        std::unique_ptr<juce::InputStream> entryStream{zip.createStreamForEntry(*entry)};
+        std::unique_ptr<InputStream> entryStream{zip.createStreamForEntry(*entry)};
         if (entryStream == nullptr) {
             jassertfalse;
             return {};
@@ -91,28 +91,28 @@ auto Editor::getWebviewFileBytes(const juce::String& resourceStr) -> std::vector
     return {};
 }
 
-auto Editor::getResource(const juce::String& url) -> std::optional<juce::WebBrowserComponent::Resource> {
-    static auto fileRoot = juce::File::getCurrentWorkingDirectory().getChildFile("dist");
+auto Editor::getResource(const String& url) -> std::optional<WebBrowserComponent::Resource> {
+    static auto fileRoot = File::getCurrentWorkingDirectory().getChildFile("dist");
     auto resourceStr = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
     auto ext = resourceStr.fromLastOccurrenceOf(".", false, false);
 
     #if WEBVIEW_DEV_MODE
         auto stream = fileRoot.getChildFile(resourceStr).createInputStream();
         if (stream) {
-            return juce::WebBrowserComponent::Resource(Functions::streamToVector(*stream), Functions::getMimeForExtension(ext));
+            return WebBrowserComponent::Resource(Functions::streamToVector(*stream), Functions::getMimeForExtension(ext));
         }
     #else
         auto resource = Editor::getWebviewFileBytes(resourceStr);
         if (!resource.empty()) {
-            return juce::WebBrowserComponent::Resource(std::move(resource), Functions::getMimeForExtension(ext));
+            return WebBrowserComponent::Resource(std::move(resource), Functions::getMimeForExtension(ext));
         }
     #endif
     return std::nullopt;
 }
 
 
-auto Editor::handleEvent(const juce::String& name, const juce::var& payload) -> void {
+auto Editor::handleEvent(const String& name, const var& payload) -> void {
     if (name == "presetChanged") {
-        this->webview.emitEventIfBrowserIsVisible(juce::Identifier{name}, payload.toString());
+        this->webview.emitEventIfBrowserIsVisible(Identifier{name}, payload.toString());
     }
 }

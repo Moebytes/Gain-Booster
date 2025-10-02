@@ -4,8 +4,8 @@
 
 Processor::Processor() : AudioProcessor(
     BusesProperties()
-        .withInput("Input", juce::AudioChannelSet::stereo(), true)
-        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+        .withInput("Input", AudioChannelSet::stereo(), true)
+        .withOutput("Output", AudioChannelSet::stereo(), true)
     ), parameters(tree), presetManager(tree) {
 }
 
@@ -24,7 +24,7 @@ auto Processor::getHostInfo() noexcept -> std::tuple<double, double, TimeSignatu
     TimeSignature timeSignature{4, 4};
 
     if (auto* playhead = this->getPlayHead()) {
-        auto info = playhead->getPosition().orFallback(juce::AudioPlayHead::PositionInfo{});
+        auto info = playhead->getPosition().orFallback(AudioPlayHead::PositionInfo{});
         bpm = info.getBpm().orFallback(150.0);
         ppq = info.getPpqPosition().orFallback(0.0);
         timeSignature = info.getTimeSignature().orFallback(TimeSignature{4, 4});
@@ -33,8 +33,8 @@ auto Processor::getHostInfo() noexcept -> std::tuple<double, double, TimeSignatu
     return {bpm, ppq, timeSignature};
 }
 
-auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] juce::MidiBuffer& midiMessages) -> void {
-    juce::ScopedNoDenormals noDenormals;
+auto Processor::processBlock(AudioBuffer<float>& buffer, [[maybe_unused]] MidiBuffer& midiMessages) -> void {
+    ScopedNoDenormals noDenormals;
 
     auto mainInput = this->getBusBuffer(buffer, true, 0);
     auto mainOutput = this->getBusBuffer(buffer, false, 0);
@@ -64,8 +64,8 @@ auto Processor::processBlock(juce::AudioBuffer<float>& buffer, [[maybe_unused]] 
 }
 
 auto Processor::isBusesLayoutSupported(const BusesLayout& layouts) const -> bool {
-    auto mono = juce::AudioChannelSet::mono();
-    auto stereo = juce::AudioChannelSet::stereo();
+    auto mono = AudioChannelSet::mono();
+    auto stereo = AudioChannelSet::stereo();
     auto mainIn = layouts.getMainInputChannelSet();
     auto mainOut = layouts.getMainOutputChannelSet();
 
@@ -88,28 +88,28 @@ auto Processor::setCurrentProgram(int index) -> void {
     this->presetManager.setPreset(index);
 }
 
-auto Processor::getProgramName(int index) -> const juce::String {
-    int safeIndex = juce::jlimit(0, this->getNumPrograms() - 1, index);
+auto Processor::getProgramName(int index) -> const String {
+    int safeIndex = jlimit(0, this->getNumPrograms() - 1, index);
     auto presetName = this->presetManager.factoryPresetNames[static_cast<size_t>(safeIndex)];
     return Functions::replaceChar(presetName, '/', '-');
 }
 
-auto Processor::changeProgramName([[maybe_unused]] int index, [[maybe_unused]] const juce::String& newName) -> void {}
+auto Processor::changeProgramName([[maybe_unused]] int index, [[maybe_unused]] const String& newName) -> void {}
 
-auto Processor::createEditor() -> juce::AudioProcessorEditor* {
+auto Processor::createEditor() -> AudioProcessorEditor* {
     return new Editor(*this);
 }
 
-auto Processor::getStateInformation(juce::MemoryBlock& destData) -> void {
+auto Processor::getStateInformation(MemoryBlock& destData) -> void {
     auto jsonStr = this->presetManager.savePreset();
     destData.replaceAll(jsonStr.toUTF8(), jsonStr.getNumBytesAsUTF8());
 }
 
 auto Processor::setStateInformation(const void* data, int sizeInBytes) -> void {
-    auto jsonStr = juce::String::fromUTF8(static_cast<const char*>(data), sizeInBytes);
+    auto jsonStr = String::fromUTF8(static_cast<const char*>(data), sizeInBytes);
     this->presetManager.loadPreset(jsonStr);
 }
 
-auto JUCE_CALLTYPE createPluginFilter() -> juce::AudioProcessor* {
+auto JUCE_CALLTYPE createPluginFilter() -> AudioProcessor* {
     return new Processor();
 }

@@ -5,13 +5,13 @@
 #include "EventEmitter.hpp"
 #include "NativeMenuBridge.h"
 
-PresetManager::PresetManager(juce::AudioProcessorValueTreeState& tree) : tree(tree) {
+PresetManager::PresetManager(AudioProcessorValueTreeState& tree) : tree(tree) {
     this->loadFactoryPresets();
     this->loadUserPresets();
 }
 
-auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>& args, 
-    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+auto PresetManager::openPresetMenu([[maybe_unused]] const Array<var>& args, 
+    WebBrowserComponent::NativeFunctionCompletion completion) -> void {
 
         std::map<int, std::string> items = {
             {1, "Init Preset"},
@@ -23,7 +23,7 @@ auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>
         auto rawUserFolder = Settings::getSettingKey("userFolder", "").toString();
         std::string userFolder = "";
         if (!rawUserFolder.isEmpty()) {
-            userFolder = juce::File{rawUserFolder}.getFileName().toStdString();
+            userFolder = File{rawUserFolder}.getFileName().toStdString();
             items.insert(std::make_pair(5, "Remove User Folder"));
         }
 
@@ -125,12 +125,12 @@ auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>
                     }
                 });
         #else
-            juce::PopupMenu menu;
+            PopupMenu menu;
             for (const auto& [id, label] : items) {
                 menu.addItem(id, label);
             }
 
-            juce::PopupMenu factoryMenu;
+            PopupMenu factoryMenu;
             for (int i = 0; i < static_cast<int>(factoryPresetNames.size()); i++) {
                 int itemID = factoryID + i;
                 auto name = this->factoryPresetNames[static_cast<size_t>(i)];
@@ -140,7 +140,7 @@ auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>
             menu.addSubMenu("Factory", factoryMenu);
 
             if (!userFolder.empty()) {
-                juce::PopupMenu userMenu;
+                PopupMenu userMenu;
                 for (int i = 0; i < static_cast<int>(userPresetNames.size()); i++) {
                     int itemID = userContentID + i;
                     auto name = this->userPresetNames[static_cast<size_t>(i)];
@@ -150,13 +150,13 @@ auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>
                 menu.addSubMenu(userFolder, userMenu);
             }
 
-            auto mousePos = juce::Desktop::getMousePosition();
+            auto mousePos = Desktop::getMousePosition();
             
-            auto options = juce::PopupMenu::Options()
-                .withPreferredPopupDirection(juce::PopupMenu::Options::PopupDirection::upwards)
-                .withTargetScreenArea(juce::Rectangle<int> {mousePos.x - 60, mousePos.y - 5, 1, 1});
+            auto options = PopupMenu::Options()
+                .withPreferredPopupDirection(PopupMenu::Options::PopupDirection::upwards)
+                .withTargetScreenArea(Rectangle<int> {mousePos.x - 60, mousePos.y - 5, 1, 1});
 
-            juce::PopupMenu::dismissAllActiveMenus();
+            PopupMenu::dismissAllActiveMenus();
             menu.showMenuAsync(options, [items, menuClick, presetClick, userPresetClick, factoryID, 
                 userContentID, completion](int resultID) {
                 if (resultID == 0) return;
@@ -178,8 +178,8 @@ auto PresetManager::openPresetMenu([[maybe_unused]] const juce::Array<juce::var>
         #endif
 }
 
-auto PresetManager::prevPreset([[maybe_unused]] const juce::Array<juce::var>& args,
-    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+auto PresetManager::prevPreset([[maybe_unused]] const Array<var>& args,
+    WebBrowserComponent::NativeFunctionCompletion completion) -> void {
         if (this->presetFolder == "factory") {
             if (this->factoryPresetNames.empty()) return;
             this->presetIndex = (this->presetIndex - 1 + static_cast<int>(factoryPresetNames.size())) % static_cast<int>(factoryPresetNames.size());
@@ -194,8 +194,8 @@ auto PresetManager::prevPreset([[maybe_unused]] const juce::Array<juce::var>& ar
         return completion(presetName);
 }
 
-auto PresetManager::nextPreset([[maybe_unused]] const juce::Array<juce::var>& args,
-    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+auto PresetManager::nextPreset([[maybe_unused]] const Array<var>& args,
+    WebBrowserComponent::NativeFunctionCompletion completion) -> void {
         if (this->presetFolder == "factory") {
             if (this->factoryPresetNames.empty()) return;
             this->presetIndex = (this->presetIndex + 1) % static_cast<int>(factoryPresetNames.size());
@@ -210,7 +210,7 @@ auto PresetManager::nextPreset([[maybe_unused]] const juce::Array<juce::var>& ar
         return completion(presetName);
 }
 
-auto PresetManager::setPreset(int _presetIndex) -> juce::String {
+auto PresetManager::setPreset(int _presetIndex) -> String {
     this->presetIndex = _presetIndex;
 
     if (this->presetFolder == "factory") {
@@ -243,14 +243,14 @@ auto PresetManager::setPreset(int _presetIndex) -> juce::String {
 
 auto PresetManager::loadPresetFromFile(std::function<void()> onComplete) -> void {
     auto directoryPath = Settings::getSettingKey("loadDirectory", Functions::getDownloadsFolder().getFullPathName());
-    juce::File directory{directoryPath};
+    File directory{directoryPath};
 
-    auto loadDialog = std::make_shared<juce::FileChooser>(
+    auto loadDialog = std::make_shared<FileChooser>(
         "Load Preset", directory, "*.json"
     );
 
-    loadDialog->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this, loadDialog, onComplete](const juce::FileChooser& picker) {
+    loadDialog->launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
+        [this, loadDialog, onComplete](const FileChooser& picker) {
             auto file = picker.getResult();
             if (file.existsAsFile()) {
                 Settings::setSettingKey("loadDirectory", file.getParentDirectory().getFullPathName());
@@ -267,7 +267,7 @@ auto PresetManager::loadPresetFromFile(std::function<void()> onComplete) -> void
 }
 
 auto PresetManager::savePresetToFile() -> void {
-    auto* infoDialog = new juce::AlertWindow("Save Preset", "Preset Information:", juce::AlertWindow::NoIcon);
+    auto* infoDialog = new AlertWindow("Save Preset", "Preset Information:", AlertWindow::NoIcon);
 
     auto defaultName = this->currentPresetName;
     if (defaultName == "Default") defaultName.clear();
@@ -275,23 +275,23 @@ auto PresetManager::savePresetToFile() -> void {
 
     infoDialog->addTextEditor("name", defaultName, "Name:");
     infoDialog->addTextEditor("author", defaultAuthor, "Author:");
-    infoDialog->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey));
-    infoDialog->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey));
+    infoDialog->addButton("OK", 1, KeyPress(KeyPress::returnKey));
+    infoDialog->addButton("Cancel", 0, KeyPress(KeyPress::escapeKey));
 
-    auto saveCallback = [this](juce::String name, juce::String author) {
+    auto saveCallback = [this](String name, String author) {
         auto cleanName = Functions::cleanFilename(name);
 
         auto directoryPath = Settings::getSettingKey("saveDirectory", Functions::getDownloadsFolder().getFullPathName());
-        juce::File directory{directoryPath};
+        File directory{directoryPath};
 
-        auto saveDialog = std::make_shared<juce::FileChooser>(
+        auto saveDialog = std::make_shared<FileChooser>(
             "Save Preset", directory.getChildFile(cleanName + ".json")
         );
 
-        saveDialog->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles,
-            [this, saveDialog, name, author](const juce::FileChooser& picker) {
+        saveDialog->launchAsync(FileBrowserComponent::saveMode | FileBrowserComponent::canSelectFiles,
+            [this, saveDialog, name, author](const FileChooser& picker) {
                 auto file = picker.getResult();
-                if (file != juce::File{}) {
+                if (file != File{}) {
                     Settings::setSettingKey("saveAuthor", author);
                     Settings::setSettingKey("saveDirectory", file.getParentDirectory().getFullPathName());
                     auto jsonString = this->savePreset(name, author);
@@ -302,7 +302,7 @@ auto PresetManager::savePresetToFile() -> void {
         );
     };
 
-    auto nameCallback = juce::ModalCallbackFunction::create([infoDialog, saveCallback](int result) {
+    auto nameCallback = ModalCallbackFunction::create([infoDialog, saveCallback](int result) {
         if (result == 1) {
             auto name = infoDialog->getTextEditor("name")->getText();
             auto author = infoDialog->getTextEditor("author")->getText();
@@ -316,8 +316,8 @@ auto PresetManager::savePresetToFile() -> void {
 }
 
 auto PresetManager::loadFactoryPresets() -> void {
-    juce::MemoryInputStream zipStream(BinaryData::presets_zip, BinaryData::presets_zipSize, false);
-    juce::ZipFile zip{zipStream};
+    MemoryInputStream zipStream(BinaryData::presets_zip, BinaryData::presets_zipSize, false);
+    ZipFile zip{zipStream};
 
     this->factoryPresetNames.clear();
     this->factoryPresets.clear();
@@ -327,16 +327,16 @@ auto PresetManager::loadFactoryPresets() -> void {
 
         if (entry == nullptr || !entry->filename.endsWithIgnoreCase(".json")) continue;
 
-        std::unique_ptr<juce::InputStream> inputStream{zip.createStreamForEntry(i)};
+        std::unique_ptr<InputStream> inputStream{zip.createStreamForEntry(i)};
         if (inputStream == nullptr) continue;
         
         auto content = inputStream->readEntireStreamAsString();
-        auto json = juce::JSON::parse(content);
+        auto json = JSON::parse(content);
 
         if (auto* obj = json.getDynamicObject()) {
             auto presetName = obj->getProperty("name").toString();
             if (presetName.isEmpty()) {
-                auto entryFile = juce::File::createFileWithoutCheckingPath(entry->filename);
+                auto entryFile = File::createFileWithoutCheckingPath(entry->filename);
                 presetName = entryFile.getFileNameWithoutExtension();
             }
 
@@ -348,14 +348,14 @@ auto PresetManager::loadFactoryPresets() -> void {
 
 auto PresetManager::addUserFolder() -> void {
     auto directoryPath = Settings::getSettingKey("userFolder", Functions::getDownloadsFolder().getFullPathName());
-    juce::File directory{directoryPath};
+    File directory{directoryPath};
 
-    auto openDialog = std::make_shared<juce::FileChooser>(
+    auto openDialog = std::make_shared<FileChooser>(
         "Add User Folder", directory, "*.json"
     );
 
-    openDialog->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
-        [this, openDialog](const juce::FileChooser& picker) {
+    openDialog->launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectDirectories,
+        [this, openDialog](const FileChooser& picker) {
             auto folder = picker.getResult();
             if (folder.exists() && folder.isDirectory()) {
                 Settings::setSettingKey("userFolder", folder.getFullPathName());
@@ -378,14 +378,14 @@ auto PresetManager::loadUserPresets() -> void {
     auto userFolder = Settings::getSettingKey("userFolder", "").toString();
     if (userFolder.isEmpty()) return;
 
-    juce::File userFolderDir{userFolder};
+    File userFolderDir{userFolder};
     if (!userFolderDir.exists() || !userFolderDir.isDirectory()) return;
 
-    auto jsonFiles = userFolderDir.findChildFiles(juce::File::TypesOfFileToFind::findFiles, false, "*.json");
+    auto jsonFiles = userFolderDir.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.json");
 
     for (const auto& file : jsonFiles) {
         auto content = file.loadFileAsString();
-        auto json = juce::JSON::parse(content);
+        auto json = JSON::parse(content);
 
         if (auto* obj = json.getDynamicObject()) {
             auto presetName = obj->getProperty("name").toString();
@@ -397,17 +397,17 @@ auto PresetManager::loadUserPresets() -> void {
     }
 }
 
-auto PresetManager::savePreset(const juce::String& name, const juce::String& author) -> juce::String {
-    auto obj = std::make_unique<juce::DynamicObject>();
+auto PresetManager::savePreset(const String& name, const String& author) -> String {
+    auto obj = std::make_unique<DynamicObject>();
 
     obj->setProperty("plugin", JucePlugin_Name);
     obj->setProperty("version", JucePlugin_VersionString);
     obj->setProperty("name", name);
     obj->setProperty("author", author);
-    obj->setProperty("modified", juce::Time::getCurrentTime().toISO8601(true));
+    obj->setProperty("modified", Time::getCurrentTime().toISO8601(true));
     obj->setProperty("presetFormat", 1);
 
-    auto parameters = std::make_unique<juce::DynamicObject>();
+    auto parameters = std::make_unique<DynamicObject>();
 
     for (const auto& id : ParameterIDs::getStringKeys()) {
         auto* param = this->tree.getParameter(id);
@@ -417,24 +417,24 @@ auto PresetManager::savePreset(const juce::String& name, const juce::String& aut
         }
     }
 
-    obj->setProperty("parameters", juce::var(parameters.release()));
-    auto json = juce::var{obj.release()};
+    obj->setProperty("parameters", var(parameters.release()));
+    auto json = var{obj.release()};
 
-    return juce::JSON::toString(json);
+    return JSON::toString(json);
 }
 
-auto PresetManager::loadPreset(const juce::String& jsonStr) -> juce::String {
-    auto parsed = juce::JSON::fromString(jsonStr);
+auto PresetManager::loadPreset(const String& jsonStr) -> String {
+    auto parsed = JSON::fromString(jsonStr);
     auto* obj = parsed.getDynamicObject();
     if (obj == nullptr) return "";
 
-    juce::String presetName = "";
+    String presetName = "";
 
     if (obj->hasProperty("name")) {
         presetName = obj->getProperty("name").toString();
     }
 
-    auto parameters = juce::var{obj->getProperty("parameters")};
+    auto parameters = var{obj->getProperty("parameters")};
     auto* paramObj = parameters.getDynamicObject();
     if (paramObj == nullptr) return "";
 

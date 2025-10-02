@@ -3,7 +3,7 @@
 
 class PresetManager {
 public:
-    PresetManager(juce::AudioProcessorValueTreeState& tree);
+    PresetManager(AudioProcessorValueTreeState& tree);
     ~PresetManager() = default;
 
     auto savePresetToFile() -> void;
@@ -12,30 +12,30 @@ public:
     auto addUserFolder() -> void;
     auto removeUserFolder() -> void;
     auto loadUserPresets() -> void;
-    auto setPreset(int presetIndex) -> juce::String;
-    auto savePreset(const juce::String& name = "", const juce::String& author = "") -> juce::String;
-    auto loadPreset(const juce::String& jsonStr) -> juce::String;
+    auto setPreset(int presetIndex) -> String;
+    auto savePreset(const String& name = "", const String& author = "") -> String;
+    auto loadPreset(const String& jsonStr) -> String;
     auto initPreset() -> void;
         
-    auto openPresetMenu(const juce::Array<juce::var>& args, 
-        juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
+    auto openPresetMenu(const Array<var>& args, 
+        WebBrowserComponent::NativeFunctionCompletion completion) -> void;
 
-    auto prevPreset(const juce::Array<juce::var>& args, 
-        juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
+    auto prevPreset(const Array<var>& args, 
+        WebBrowserComponent::NativeFunctionCompletion completion) -> void;
 
-    auto nextPreset(const juce::Array<juce::var>& args, 
-        juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void;
+    auto nextPreset(const Array<var>& args, 
+        WebBrowserComponent::NativeFunctionCompletion completion) -> void;
 
-    juce::String currentPresetName = "Default";
-    std::map<juce::String, juce::String> factoryPresets;
-    std::vector<juce::String> factoryPresetNames;
-    std::map<juce::String, juce::String> userPresets;
-    std::vector<juce::String> userPresetNames;
+    String currentPresetName = "Default";
+    std::map<String, String> factoryPresets;
+    std::vector<String> factoryPresetNames;
+    std::map<String, String> userPresets;
+    std::vector<String> userPresetNames;
     int presetIndex = 0;
-    juce::String presetFolder = "none";
+    String presetFolder = "none";
 
 private:
-    juce::AudioProcessorValueTreeState& tree;
+    AudioProcessorValueTreeState& tree;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PresetManager)
 };

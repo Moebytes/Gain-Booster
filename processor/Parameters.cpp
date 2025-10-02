@@ -3,31 +3,31 @@
 #include "Functions.hpp"
 
 template<typename T>
-static auto castParameter(const juce::AudioProcessorValueTreeState& tree, 
-    const juce::ParameterID* id, T*& dest) -> void {
+static auto castParameter(const AudioProcessorValueTreeState& tree, 
+    const ParameterID* id, T*& dest) -> void {
     dest = dynamic_cast<T*>(tree.getParameter(id->getParamID()));
     jassert(dest != nullptr);
 }
 
 template <typename T>
-static auto resetParameter(const juce::AudioProcessorValueTreeState& tree, 
-    const juce::AudioParameterFloat* param, T*& dest) -> void {
+static auto resetParameter(const AudioProcessorValueTreeState& tree, 
+    const AudioParameterFloat* param, T*& dest) -> void {
     auto* paramObj = tree.getParameter(param->getParameterID());
     if (paramObj) *dest = paramObj->getDefaultValue();
 }
 
 template <typename T>
-static auto resetParameter(const juce::AudioProcessorValueTreeState& tree, 
-    const juce::AudioParameterChoice* param, T*& dest) -> void {
+static auto resetParameter(const AudioProcessorValueTreeState& tree, 
+    const AudioParameterChoice* param, T*& dest) -> void {
     auto* paramObj = tree.getParameter(param->getParameterID());
     if (paramObj) *dest = static_cast<T>(paramObj->getDefaultValue());
 }
 
 ParameterIDs Parameters::paramIDs = ParameterIDs::loadFromJSON();
 
-Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : tree(tree) {
-    using FloatPair = std::pair<juce::AudioParameterFloat*&, const juce::ParameterID*>;
-    using ChoicePair = std::pair<juce::AudioParameterChoice*&, const juce::ParameterID*>;
+Parameters::Parameters(AudioProcessorValueTreeState& tree) : tree(tree) {
+    using FloatPair = std::pair<AudioParameterFloat*&, const ParameterID*>;
+    using ChoicePair = std::pair<AudioParameterChoice*&, const ParameterID*>;
 
     auto floatParameters = std::vector<FloatPair>{
         {gainParam, &paramIDs.gain},
@@ -56,76 +56,76 @@ Parameters::Parameters(juce::AudioProcessorValueTreeState& tree) : tree(tree) {
     }
 }
 
-auto Parameters::createParameterLayout() -> juce::AudioProcessorValueTreeState::ParameterLayout {
-    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+auto Parameters::createParameterLayout() -> AudioProcessorValueTreeState::ParameterLayout {
+    AudioProcessorValueTreeState::ParameterLayout layout;
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.gain, "Gain", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 1.0f,
-        juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
+    layout.add(std::make_unique<AudioParameterFloat>(
+        paramIDs.gain, "Gain", NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 1.0f,
+        AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
         .withValueFromStringFunction(Functions::parsePercent)
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        paramIDs.gainCurve, "Gain Curve", juce::StringArray{"logarithmic", "linear", "exponential"}, 1
+    layout.add(std::make_unique<AudioParameterChoice>(
+        paramIDs.gainCurve, "Gain Curve", StringArray{"logarithmic", "linear", "exponential"}, 1
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.boost, "Boost", juce::NormalisableRange<float>{0.0f, 12.0f, 0.01f}, 0.0f,
-        juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayDecibels)
+    layout.add(std::make_unique<AudioParameterFloat>(
+        paramIDs.boost, "Boost", NormalisableRange<float>{0.0f, 12.0f, 0.01f}, 0.0f,
+        AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayDecibels)
         .withValueFromStringFunction(Functions::parseDecibels)
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        paramIDs.boostCurve, "Boost Curve", juce::StringArray{"logarithmic", "linear", "exponential"}, 1
+    layout.add(std::make_unique<AudioParameterChoice>(
+        paramIDs.boostCurve, "Boost Curve", StringArray{"logarithmic", "linear", "exponential"}, 1
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.pan, "Pan", juce::NormalisableRange<float>{-1.0f, 1.0f, 0.01f}, 0.0f,
-        juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPan)
+    layout.add(std::make_unique<AudioParameterFloat>(
+        paramIDs.pan, "Pan", NormalisableRange<float>{-1.0f, 1.0f, 0.01f}, 0.0f,
+        AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPan)
         .withValueFromStringFunction(Functions::parsePan)
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        paramIDs.panningLaw, "Panning Law", juce::StringArray{"constant", "triangle", "linear"}, 1
+    layout.add(std::make_unique<AudioParameterChoice>(
+        paramIDs.panningLaw, "Panning Law", StringArray{"constant", "triangle", "linear"}, 1
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        paramIDs.gainLFOType, "Gain LFO Type", juce::StringArray{"square", "saw", "triangle", "sine"}, 0
+    layout.add(std::make_unique<AudioParameterChoice>(
+        paramIDs.gainLFOType, "Gain LFO Type", StringArray{"square", "saw", "triangle", "sine"}, 0
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.gainLFORate, "Gain LFO Rate", juce::NormalisableRange<float>{0.03125f, 4.0f, 0.0001f}, 0.25f,
-        juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayLFORate)
+    layout.add(std::make_unique<AudioParameterFloat>(
+        paramIDs.gainLFORate, "Gain LFO Rate", NormalisableRange<float>{0.03125f, 4.0f, 0.0001f}, 0.25f,
+        AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayLFORate)
         .withValueFromStringFunction(Functions::parseLFORate)
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.gainLFOAmount, "Gain LFO Amount", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f,
-        juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
+    layout.add(std::make_unique<AudioParameterFloat>(
+        paramIDs.gainLFOAmount, "Gain LFO Amount", NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f,
+        AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
         .withValueFromStringFunction(Functions::parsePercent)
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        paramIDs.panLFOType, "Pan LFO Type", juce::StringArray{"square", "saw", "triangle", "sine"}, 0
+    layout.add(std::make_unique<AudioParameterChoice>(
+        paramIDs.panLFOType, "Pan LFO Type", StringArray{"square", "saw", "triangle", "sine"}, 0
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.panLFORate, "Pan LFO Rate", juce::NormalisableRange<float>{0.03125f, 4.0f, 0.0001f}, 0.25f,
-        juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayLFORate)
+    layout.add(std::make_unique<AudioParameterFloat>(
+        paramIDs.panLFORate, "Pan LFO Rate", NormalisableRange<float>{0.03125f, 4.0f, 0.0001f}, 0.25f,
+        AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayLFORate)
         .withValueFromStringFunction(Functions::parseLFORate)
     ));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        paramIDs.panLFOAmount, "Pan LFO Amount", juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f,
-        juce::AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
+    layout.add(std::make_unique<AudioParameterFloat>(
+        paramIDs.panLFOAmount, "Pan LFO Amount", NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f,
+        AudioParameterFloatAttributes().withStringFromValueFunction(Functions::displayPercent)
         .withValueFromStringFunction(Functions::parsePercent)
     ));
 
     return layout;
 }
 
-auto Parameters::getDefaultParameter(const juce::Array<juce::var>& args,
-    juce::WebBrowserComponent::NativeFunctionCompletion completion) -> void {
+auto Parameters::getDefaultParameter(const Array<var>& args,
+    WebBrowserComponent::NativeFunctionCompletion completion) -> void {
 
     auto paramID = args[0].toString();
     auto* param = this->tree.getParameter(paramID);
@@ -182,7 +182,7 @@ auto Parameters::reset() noexcept -> void {
     this->panLFO.reset();
 }
 
-auto Parameters::setHostInfo(double bpm, double ppq, const juce::AudioPlayHead::TimeSignature& timeSignature) noexcept -> void {
+auto Parameters::setHostInfo(double bpm, double ppq, const AudioPlayHead::TimeSignature& timeSignature) noexcept -> void {
     this->bpm = bpm;
     this->ppq = ppq;
     this->timeSignature = timeSignature;
@@ -235,7 +235,7 @@ auto Parameters::update() noexcept -> void {
 
     float gainLFOValue = this->gainLFO.getSample();
     float gainLFOAmount = this->gainLFOAmountSmoother.getNextValue();
-    this->gain *= juce::jmap(gainLFOValue, -1.0f, 1.0f, 1.0f - gainLFOAmount, 1.0f);
+    this->gain *= jmap(gainLFOValue, -1.0f, 1.0f, 1.0f - gainLFOAmount, 1.0f);
 
     const auto& boostCurve = this->boostCurveParam->getCurrentChoiceName();
     float boostdB = this->boostSmoother.getNextValue();
@@ -246,14 +246,14 @@ auto Parameters::update() noexcept -> void {
         boostdB = std::pow(boostdB / 12.0f, 2.0f) * 12.0f;
     }
 
-    this->boost = juce::Decibels::decibelsToGain(boostdB);
+    this->boost = Decibels::decibelsToGain(boostdB);
 
     const auto& panningLaw = panningLawParam->getCurrentChoiceName();
     this->pan = this->panSmoother.getNextValue();
 
     float panLFOValue = this->panLFO.getSample();
     float panLFOAmount = this->panLFOAmountSmoother.getNextValue();
-    this->pan = juce::jlimit(-1.0f, 1.0f, this->pan + panLFOValue * panLFOAmount * 0.5f);
+    this->pan = jlimit(-1.0f, 1.0f, this->pan + panLFOValue * panLFOAmount * 0.5f);
 
     if (panningLaw == "triangle") {
         PanningLaw::trianglePanning(this->pan, this->panL, this->panR);
