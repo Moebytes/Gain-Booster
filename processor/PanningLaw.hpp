@@ -1,7 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 
-class DSP {
+class PanningLaw {
 public:
     static inline auto constantPowerPanning(float pan, float& panL, float& panR) -> void {
         float angle = (pan + 1.0f) * juce::MathConstants<float>::pi * 0.25f;

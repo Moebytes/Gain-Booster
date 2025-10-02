@@ -1,5 +1,5 @@
 #include "Parameters.h"
-#include "DSP.hpp"
+#include "PanningLaw.hpp"
 #include "Functions.hpp"
 
 template<typename T>
@@ -256,10 +256,10 @@ auto Parameters::update() noexcept -> void {
     this->pan = juce::jlimit(-1.0f, 1.0f, this->pan + panLFOValue * panLFOAmount * 0.5f);
 
     if (panningLaw == "triangle") {
-        DSP::trianglePanning(this->pan, this->panL, this->panR);
+        PanningLaw::trianglePanning(this->pan, this->panL, this->panR);
     } else if (panningLaw == "linear") {
-        DSP::linearPanning(this->pan, this->panL, this->panR);
+        PanningLaw::linearPanning(this->pan, this->panL, this->panR);
     } else {
-        DSP::constantPowerPanning(this->pan, this->panL, this->panR);
+        PanningLaw::constantPowerPanning(this->pan, this->panL, this->panR);
     }
 }
