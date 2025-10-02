@@ -27,8 +27,8 @@ public:
     static inline auto linearPanning(float pan, float& panL, float& panR) -> void {
         panL = 0.5f * (1.0f - pan);
         panR = 0.5f * (1.0f + pan);
-        float norm = std::sqrt(panL * panL + panR * panR);
-        panL /= norm;
-        panR /= norm;
+        float norm = 1.0f / std::sqrt(panL * panL + panR * panR);
+        panL *= norm;
+        panR *= norm;
     }
 };
