@@ -113,7 +113,22 @@ auto method(const std::string &str, float *ptr) -> void {}
 auto method(const std::string& str, float* ptr) -> void {}
 ```
 
-**11. Prefer auto function parameters, unless the template is needed in the function body** 
+**11. Do not fill with comments** \
+Do not fill the code with excessive comments. A documentation comment for the function is fine. If you have 
+to comment every other line, you are making bad code.
+
+```ts
+// x Bad
+// set a to 1
+int a = 1;
+// ✓ Good
+/**
+* This function adds two numbers
+*/
+auto addNum(int a, int b) -> int {}
+```
+
+**12. Prefer auto function parameters, unless the template is needed in the function body** 
 
 ```cpp
 // x Bad
@@ -123,7 +138,7 @@ auto bind(F&& func, const std::string& name) -> void {}
 auto bind(auto&& func, const std::string& name) -> void {}
 ```
 
-**12. Preface class member variables with this** 
+**13. Preface class member variables with this** 
 
 ```cpp
 // x Bad
@@ -132,7 +147,7 @@ doSomething();
 this->doSomething();
 ```
 
-**13. Use static_cast and dynamic_cast over C casts** \
+**14. Use static_cast and dynamic_cast over C casts** \
 Also avoid using reinterpret_cast unless necessary.
 
 ```cpp
@@ -142,7 +157,7 @@ int x = (int) 5.3;
 int x = static_cast<int>(5.3);
 ```
 
-**14. Use post increment in for loops** \
+**15. Use post increment in for loops** \
 There shouldn't be a difference anymore, and post increment looks better.
 
 ```cpp
@@ -152,7 +167,7 @@ for (int i = 0; i < 5; ++i) {}
 for (int i = 0; i < 5; i++) {}
 ```
 
-**15. Use the member initialization list** 
+**16. Use the member initialization list** 
 
 ```cpp
 // x Bad
@@ -163,7 +178,7 @@ MyClass::MyClass(std::string a) {
 MyClass::MyClass(std::string a) : a(a) {}
 ```
 
-**16. Prefer C++ std lib over C std lib** 
+**17. Prefer C++ std lib over C std lib** 
 
 ```cpp
 // x Bad
