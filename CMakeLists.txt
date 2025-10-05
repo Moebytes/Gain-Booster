@@ -8,6 +8,10 @@ project(GainBooster VERSION 0.0.6)
 
 option(WEBVIEW_DEV_MODE "Enable webview dev mode (load from disk)" OFF)
 
+if(APPLE)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE INTERNAL "" FORCE)
+endif()
+
 include(FetchContent)
 
 FetchContent_Declare(
