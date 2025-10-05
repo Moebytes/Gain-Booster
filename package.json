@@ -1,12 +1,12 @@
 {
   "name": "gain-booster",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Gain VST plugin",
   "main": "dist/index.js",
   "scripts": {
     "start": "rsbuild dev",
     "build": "npm run clean && npm run embed-binary && npm run cmake",
-    "embed-binary": "rsbuild build && (node -e \"process.exit(process.platform === 'win32' ? 0 : 1)\" && embed_binary.bat || ./embed_binary.sh)",
+    "embed-binary": "rsbuild build && (node -e \"process.exit(process.platform === 'win32' ? 0 : 1)\" && embed-binary.bat || ./embed-binary.sh)",
     "cmake": "cmake -B build -DCMAKE_BUILD_TYPE=Release -DWEBVIEW_DEV_MODE=0 && cmake --build build --config Release",
     "clean": "del-cli ./dist"
   },

@@ -6,7 +6,7 @@
 			"type": "shell",
 			"command": "cmake",
 			"args": [
-				"-DWEBVIEW_DEV_MODE=0",
+				"-DWEBVIEW_DEV_MODE=1",
 				"-DCMAKE_BUILD_TYPE=Debug",
 				".."
 			],

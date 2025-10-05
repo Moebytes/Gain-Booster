@@ -1,6 +1,6 @@
 # Gain Booster
 
-Gain Booster is a VST/AU plugin for gain control, panning, and quick LFO modulation.
+Gain Booster is a VST/AU plugin for gain control, panning, and some LFO modulation.
 
 <img src="assets/readme.png" height="700">
 
@@ -24,14 +24,16 @@ That should be it!
 
 Download from the [releases](https://github.com/Moebits/Gain-Booster/releases) tab and rescan the plugins in your DAW.
 
-### Windows
+### MacOS
 
-On Windows you need to install the WebView2 runtime, because the default WebView will probably be too old. 
-https://developer.microsoft.com/en-us/Microsoft-edge/webview2/
+On MacOS you need to remove the unsigned app check.
+```
+xattr -d com.apple.quarantine "/Library/Audio/Plug-Ins/VST3/Gain Booster.vst3"
+```
 
 ### Building
 
-Release build - `npm install` and `npm run build` should take care of it. 
+Release build - `npm install` and `npm run build`. 
 
 Debug build - I run the project with the VSCode debugger and use `npm start` to start the frontend 
 server. You must install the AudioPluginHost from JUCE and put it in your applications folder. 

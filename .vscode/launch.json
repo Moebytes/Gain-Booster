@@ -13,6 +13,18 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "build"
+        },
+        {
+            "name": "Attach to FL Studio",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/Applications/FL Studio 2025.app",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
         }
     ]
 }
