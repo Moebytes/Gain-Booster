@@ -12,9 +12,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Moebits/Gain-Booster"
+    "url": "https://github.com/Moebytes/Gain-Booster"
   },
-  "author": "Moebits",
+  "author": "Moebytes",
   "license": "CC BY-NC 4.0",
   "overrides": {
     "react": "^19.1.0",
