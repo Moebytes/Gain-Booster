@@ -2,7 +2,7 @@
 
 Gain Booster is a VST/AU plugin for gain control, panning, and some LFO modulation.
 
-<img src="assets/readme.png" height="700">
+<img src="assets/readme.png" height="600">
 
 ### Controls:
 - Gain - the knob controls the volume from 0% to 100%.
@@ -22,7 +22,7 @@ That should be it!
 
 ### Installation
 
-Download from the [releases](https://github.com/Moebits/Gain-Booster/releases) tab and rescan the plugins in your DAW.
+Download from the [releases](https://github.com/Moebytes/Gain-Booster/releases) tab and rescan the plugins in your DAW.
 
 ### MacOS
 
